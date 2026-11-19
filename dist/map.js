@@ -1131,3 +1131,93 @@ map.addEventListener('keydown',e=>{
 dimensions();
 restoreEntry(history.state);
 new ResizeObserver(()=>{dimensions();layoutRegionCards();draw()}).observe(map);
+
+// Floating handwriting pad. Strokes are kept in this browser's localStorage, so notes survive closing the pad or the page.
+(()=>{
+  const pad=$('note-pad'), canvas=$('note-canvas'), ctx=canvas.getContext('2d'), toggle=$('note-toggle');
+  const KEY='chungbuk-map-notes', BOX='chungbuk-map-note-box';
+  let strokes=[], color='#1f2a24', erasing=false, current=null, penSeen=false, clearArmed=null;
+  try{strokes=JSON.parse(localStorage.getItem(KEY))||[]}catch{strokes=[]}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(strokes))}catch{}};
+  const saveBox=()=>{try{localStorage.setItem(BOX,JSON.stringify({left:pad.offsetLeft,top:pad.offsetTop,width:pad.offsetWidth,height:pad.offsetHeight}))}catch{}};
+  function drawStroke(s){
+    const pts=s.p; if(!pts.length)return;
+    ctx.strokeStyle=ctx.fillStyle=s.c; ctx.lineCap=ctx.lineJoin='round';
+    if(pts.length===1){ctx.beginPath();ctx.arc(pts[0][0],pts[0][1],pts[0][2]/2,0,7);ctx.fill();return}
+    for(let i=1;i<pts.length;i++){
+      ctx.lineWidth=(pts[i-1][2]+pts[i][2])/2;
+      ctx.beginPath();ctx.moveTo(pts[i-1][0],pts[i-1][1]);ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();
+    }
+  }
+  function redraw(){
+    const r=canvas.getBoundingClientRect(), d=devicePixelRatio||1;
+    if(canvas.width!==Math.round(r.width*d)||canvas.height!==Math.round(r.height*d)){canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d)}
+    ctx.setTransform(d,0,0,d,0,0); ctx.clearRect(0,0,r.width,r.height);
+    strokes.forEach(drawStroke);
+  }
+  function placePad(){
+    let box=null; try{box=JSON.parse(localStorage.getItem(BOX))}catch{}
+    const w=Math.min(box?.width||460,innerWidth-16), h=Math.min(box?.height||360,innerHeight-16);
+    pad.style.width=w+'px'; pad.style.height=h+'px';
+    pad.style.left=Math.max(8,Math.min(box?.left??innerWidth-w-16,innerWidth-w-8))+'px';
+    pad.style.top=Math.max(8,Math.min(box?.top??64,innerHeight-h-8))+'px';
+  }
+  function setOpen(open){
+    pad.hidden=!open; toggle.setAttribute('aria-expanded',String(open)); toggle.setAttribute('aria-pressed',String(open));
+    if(open){placePad();redraw()}
+  }
+  toggle.addEventListener('click',()=>setOpen(pad.hidden));
+  $('note-close').addEventListener('click',()=>setOpen(false));
+  // Pens and eraser
+  const pens=[...pad.querySelectorAll('.note-pen')];
+  function pick(btn){erasing=btn.id==='note-eraser';if(!erasing)color=btn.dataset.color;[...pens,$('note-eraser')].forEach(b=>b.setAttribute('aria-pressed',String(b===btn)))}
+  [...pens,$('note-eraser')].forEach(b=>b.addEventListener('click',()=>pick(b)));
+  $('note-undo').addEventListener('click',()=>{strokes.pop();save();redraw()});
+  const clearBtn=$('note-clear');
+  clearBtn.addEventListener('click',()=>{
+    if(!clearArmed){clearBtn.textContent='한 번 더 누르면 지움';clearArmed=setTimeout(()=>{clearArmed=null;clearBtn.textContent='모두 지우기'},2500);return}
+    clearTimeout(clearArmed);clearArmed=null;clearBtn.textContent='모두 지우기';strokes=[];save();redraw();
+  });
+  // Drawing: pen, mouse or finger. Once a stylus is used, fingers no longer draw (resting palm).
+  const at=e=>{const r=canvas.getBoundingClientRect();return [Math.round((e.clientX-r.left)*10)/10,Math.round((e.clientY-r.top)*10)/10]};
+  const width=e=>e.pointerType==='pen'&&e.pressure>0?Math.round((1.2+e.pressure*3.4)*10)/10:2.6;
+  function eraseAt([x,y]){
+    const before=strokes.length;
+    strokes=strokes.filter(s=>!s.p.some(q=>Math.hypot(q[0]-x,q[1]-y)<10));
+    if(strokes.length!==before)redraw();
+  }
+  canvas.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='pen')penSeen=true;
+    if(e.pointerType==='touch'&&penSeen)return;
+    if(e.button>0)return;
+    canvas.setPointerCapture(e.pointerId); e.preventDefault();
+    const pt=at(e);
+    if(erasing){current={erase:true,id:e.pointerId};eraseAt(pt);return}
+    current={id:e.pointerId,s:{c:color,p:[[...pt,width(e)]]}}; strokes.push(current.s); drawStroke(current.s);
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!current||e.pointerId!==current.id)return;
+    for(const ev of e.getCoalescedEvents?.()||[e]){
+      const pt=at(ev);
+      if(current.erase){eraseAt(pt);continue}
+      const pts=current.s.p, last=pts[pts.length-1];
+      if(Math.hypot(pt[0]-last[0],pt[1]-last[1])<1.2)continue;
+      pts.push([...pt,width(ev)]);
+      drawStroke({c:current.s.c,p:pts.slice(-2)});
+    }
+  });
+  const end=e=>{if(current&&e.pointerId===current.id){current=null;save()}};
+  canvas.addEventListener('pointerup',end); canvas.addEventListener('pointercancel',end);
+  // Move by the title, resize from the corner (CSS resize); keep it on screen.
+  const grip=pad.querySelector('.note-grip');
+  let drag=null;
+  grip.addEventListener('pointerdown',e=>{drag={x:e.clientX-pad.offsetLeft,y:e.clientY-pad.offsetTop,id:e.pointerId};grip.setPointerCapture(e.pointerId);e.preventDefault()});
+  grip.addEventListener('pointermove',e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    pad.style.left=Math.max(0,Math.min(e.clientX-drag.x,innerWidth-pad.offsetWidth))+'px';
+    pad.style.top=Math.max(0,Math.min(e.clientY-drag.y,innerHeight-40))+'px';
+  });
+  grip.addEventListener('pointerup',()=>{drag=null;saveBox()});
+  new ResizeObserver(()=>{if(!pad.hidden){redraw();saveBox()}}).observe(pad);
+  addEventListener('resize',()=>{if(!pad.hidden){placePad();redraw()}});
+})();
