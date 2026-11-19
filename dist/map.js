@@ -779,8 +779,8 @@ function renderSelection(name,view){
   $('panel').hidden=!name;
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
-  // The school filter opens by itself only when Cheongju is chosen.
-  schoolToggle.setAttribute('aria-expanded',String(entering && name==='청주시'));
+  // The school filter opens by itself whenever a district with schools is chosen.
+  schoolToggle.setAttribute('aria-expanded',String(entering && offices.some(office=>office.region===name && office.schoolType)));
   schoolFilter.hidden=!offices.some(office=>office.region===name && office.schoolType);
   $('school-list-title').textContent=name+' 학교 목록';
   for(const input of typeInputs){
