@@ -52,6 +52,37 @@ regions.forEach(({name,path,label},i)=>{
   const labelNode=element($('labels'),'text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'map-label'});
   labelNode.textContent=name;labels.set(name,labelNode);
 });
+// Cheongju's four districts (구) appear over the city once school cards are shown there.
+const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
+world.insertBefore(guLayer,$('labels'));
+const guPaths=new Map(), guLabels=[];
+for(const {name,path} of cheongjuGu){
+  guPaths.set(name,element(guLayer,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
+    'aria-label':'청주시 '+name+' 학교만 보기','aria-pressed':'false'}));
+}
+const guNames=element(guLayer,'g',{'pointer-events':'none'});
+for(const {name,label:[x,y]} of cheongjuGu){
+  const text=element(guNames,'text',{x,y,class:'gu-label','text-anchor':'middle','dominant-baseline':'central'});
+  text.textContent=name;guLabels.push(text);
+}
+let selectedGu='';
+function syncGu(){
+  const on=selected==='청주시' && typeInputs.some(input=>input.checked);
+  if(!on) selectedGu='';
+  guLayer.classList.toggle('visible',on);
+  guLayer.classList.toggle('picked',Boolean(selectedGu));
+  for(const [name,path] of guPaths){
+    path.classList.toggle('active',name===selectedGu);
+    path.setAttribute('aria-pressed',String(name===selectedGu));
+    path.setAttribute('tabindex',on?0:-1);
+  }
+  labels.get('청주시').classList.toggle('muted',on);
+}
+function toggleGu(name){
+  selectedGu=selectedGu===name?'':name;
+  $('announce').textContent=selectedGu?'청주시 '+selectedGu+' 학교 보기':'청주시 전체 학교 보기';
+  updateFilters();
+}
 let selected='',z=1,base=1,origin=[0,0],center=[W/2,H/2],vw=0,vh=0;
 const compact=matchMedia('(max-width:720px), (max-height:540px)');
 // Anchors use the same Web Mercator extent as the administrative boundary paths.
@@ -451,7 +482,8 @@ schoolFilter.addEventListener('change',updateFilters);
 const schoolsNorthFirst=officeMarkers.filter(marker=>marker.office.schoolType)
   .sort((a,b)=>b.office.lat-a.office.lat || a.office.name.localeCompare(b.office.name,'ko'));
 function matchesSchoolLevel(office){
-  return typeInputs.some(input=>input.checked && schoolTypes[input.value]===office.schoolType);
+  return typeInputs.some(input=>input.checked && schoolTypes[input.value]===office.schoolType)
+    && (!selectedGu || office.address.includes('청주시 '+selectedGu));
 }
 
 const schoolListDialog=$('school-list-dialog');
@@ -562,6 +594,7 @@ function layoutSchools(cards){
 // Lay out once in the fitted region view. Move the entire layout with the map.
 let annotationView=null;
 function layoutRegionCards(){
+  syncGu();
   cardPages.hidden=true;
   const mobile=compact.matches;
   const pitch=44;
@@ -654,6 +687,8 @@ function draw(){
     label.style.fontSize=(labelSize/k)+'px';label.style.strokeWidth=(2.8/k)+'px';
     label.classList.toggle('active',selected===name);
   });
+  const guSize=Math.min(17,12+2*Math.log2(z));
+  for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
   $('zoom-range').value=z;
   $('zoom-range').setAttribute('aria-valuetext',Number(z.toFixed(2))+'배');
   if(annotationView){
@@ -681,6 +716,7 @@ function fitSelection(){
   draw();
 }
 function renderSelection(name,view){
+  if(selected!==name) selectedGu='';
   if(selected!==name || view){
     cardPage=0;
     for(const input of typeInputs){
@@ -870,7 +906,7 @@ gestureArea.addEventListener('pointerdown',e=>{
   tapTarget=null;
   if(!touches.size){
     start=position;
-    tapTarget=e.target.closest('[data-office],[data-region]');
+    tapTarget=e.target.closest('[data-office],[data-gu],[data-region]');
   }
   touches.set(e.pointerId,position);
   gestureArea.setPointerCapture(e.pointerId);
@@ -909,9 +945,11 @@ gestureArea.addEventListener('lostpointercapture',e=>{
 // Commit selection on click so a newly revealed label cannot receive the same tap.
 // Keyboard and assistive-technology activations have no preceding pointer gesture.
 gestureArea.addEventListener('click',e=>{
-  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-region]'):pendingMapTap;
+  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-gu],[data-region]'):pendingMapTap;
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
+  // A district (구) of Cheongju: show only its schools; pressing it again shows all of Cheongju.
+  else if(target?.dataset.gu)toggleGu(target.dataset.gu);
   // Clicking the already selected district again returns to the whole-province view.
   else if(target?.dataset.region===selected){
     // Clicking the selected district again shows the whole province, centred on that district.
@@ -924,6 +962,11 @@ gestureArea.addEventListener('click',e=>{
   else if(target?.dataset.region)choose(target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
+  if(e.target.dataset.gu && (e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    if(!e.repeat)toggleGu(e.target.dataset.gu);
+    return;
+  }
   const region=e.target.dataset.region;
   if(region && (e.key==='Enter'||e.key===' ')){
     e.preventDefault();

@@ -263,3 +263,15 @@ header { height:52px; padding:0 24px; }
 .district:focus { outline:none; }
 .osm-credit { position:absolute; left:31px; bottom:8px; font-size:9px; color:#6b786d; text-decoration:none; }
 @media(max-width:720px),(max-height:540px){ .osm-credit { left:18px; bottom:4px; } }
+/* Cheongju districts (구) for filtering school cards. */
+#gu-layer { opacity:0; pointer-events:none; transition:opacity .45s ease; }
+#gu-layer.visible { opacity:1; }
+#gu-layer.visible .gu { pointer-events:fill; cursor:pointer; }
+.gu { fill:#ffffff1f; stroke:#2f6048; stroke-width:1.3px; stroke-dasharray:5 4; vector-effect:non-scaling-stroke; stroke-linejoin:round; transition:fill .25s ease; }
+.gu:hover { fill:#ffffff40; }
+#gu-layer.picked .gu { fill:#f7f7ef70; }
+#gu-layer.picked .gu.active { fill:#2e7a5230; stroke-dasharray:none; stroke-width:2.2px; }
+.gu:focus { outline:none; }
+.gu:focus-visible { stroke:#1d4a35; stroke-width:3px; }
+.gu-label { font-weight:750; fill:#24503b; stroke:#fbfbf3; paint-order:stroke; }
+.map-label.muted { opacity:0; transition:opacity .45s ease; }
