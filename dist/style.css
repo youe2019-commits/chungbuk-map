@@ -277,14 +277,28 @@ header { height:52px; padding:0 24px; }
 .map-label.muted { opacity:0; transition:opacity .45s ease; }
 #nation-chungbuk { pointer-events:none; }
 @media(max-width:720px){ #school-options { flex-wrap:wrap; width:calc(100vw - 30px); max-width:none; overflow-x:visible; } }
-/* Brief raised effect on each district (구) when they appear. */
+/* When the districts appear they rise and part slightly, then settle back into place. */
 .gu { transform-box:fill-box; transform-origin:center; }
-#gu-layer.intro .gu { animation:gu-lift 1.1s ease-in-out both; }
-#gu-layer.intro .gu:nth-of-type(2) { animation-delay:.3s; }
-#gu-layer.intro .gu:nth-of-type(3) { animation-delay:.6s; }
-#gu-layer.intro .gu:nth-of-type(4) { animation-delay:.9s; }
-@keyframes gu-lift {
-  0%,100% { transform:none; filter:none; }
-  45% { transform:translate(0,-1.5%) scale(1.04); fill:#ffffff8c; stroke-dasharray:none; filter:drop-shadow(0 2px 1.5px #1d3b2c80); }
+#gu-layer.intro .gu { animation:gu-part 2.2s cubic-bezier(.35,0,.25,1) both; }
+@keyframes gu-part {
+  0% { transform:none; filter:none; }
+  30%,68% { transform:translate(var(--gu-dx),var(--gu-dy)) scale(.985); fill:#ffffffa8; stroke:#2b5a43; stroke-dasharray:none; stroke-width:2px; filter:drop-shadow(0 2.5px 2px #1d3b2c8c); }
+  100% { transform:none; filter:none; }
 }
 @media (prefers-reduced-motion:reduce){ #gu-layer.intro .gu { animation:none; } }
+/* Home button beside 지역 정보 보기. */
+.panel-row { display:flex; }
+.panel-row:has(#region-info[hidden]) { display:none; }
+#home-button { display:grid; place-items:center; flex:none; width:44px; min-height:44px; border-right:1px solid var(--line); color:var(--pine); }
+#home-button svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+#home-button:hover { background:#edf2e9; }
+#region-info .short { display:none; }
+#panel:not(.open):has(#region-info:not([hidden])) { width:160px; }
+.school-filter { left:194px; }
+@media(max-width:720px),(max-height:540px){
+  #panel:not(.open):has(#region-info:not([hidden])) { width:116px; }
+  #home-button { width:38px; }
+  #region-info .long { display:none; }
+  #region-info .short { display:inline; }
+  .school-filter { left:137px; }
+}

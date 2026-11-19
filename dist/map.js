@@ -56,9 +56,15 @@ regions.forEach(({name,path,label},i)=>{
 const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
 world.insertBefore(guLayer,$('labels'));
 const guPaths=new Map(), guLabels=[];
-for(const {name,path} of cheongjuGu){
-  guPaths.set(name,element(guLayer,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
-    'aria-label':'청주시 '+name+' 학교만 보기','aria-pressed':'false'}));
+const guMid=cheongjuGu.reduce((sum,{label:[x,y]})=>[sum[0]+x/4,sum[1]+y/4],[0,0]);
+for(const {name,path,label:[x,y]} of cheongjuGu){
+  const node=element(guLayer,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
+    'aria-label':'청주시 '+name+' 학교만 보기','aria-pressed':'false'});
+  // Direction away from the city centre, used to pull the districts slightly apart when they appear.
+  const length=Math.hypot(x-guMid[0],y-guMid[1])||1;
+  node.style.setProperty('--gu-dx',((x-guMid[0])/length*4).toFixed(2)+'px');
+  node.style.setProperty('--gu-dy',((y-guMid[1])/length*4).toFixed(2)+'px');
+  guPaths.set(name,node);
 }
 const guNames=element(guLayer,'g',{'pointer-events':'none'});
 for(const {name,label:[x,y]} of cheongjuGu){
@@ -75,7 +81,7 @@ function syncGu(){
     void guLayer.getBoundingClientRect();
     guLayer.classList.add('intro');
     clearTimeout(syncGu.timer);
-    syncGu.timer=setTimeout(()=>guLayer.classList.remove('intro'),2600);
+    syncGu.timer=setTimeout(()=>guLayer.classList.remove("intro"),2400);
   }
   guLayer.classList.toggle('visible',on);
   guLayer.classList.toggle('picked',Boolean(selectedGu));
@@ -387,6 +393,7 @@ function showNumbers(id, entries){
     item.append(term,number); list.append(item);
   }
 }
+$('home-button').onclick=()=>choose('');
 $('region-info').onclick=()=>{
   const data=regionStatistics[selected];
   if(!data)return;
