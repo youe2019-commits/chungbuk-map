@@ -16,8 +16,10 @@ element(terrain,'image',{id:'contours',href:'contours.webp',x:-650,y:-400,width:
 element(terrain,'image',{id:'relief',href:'relief.webp',width:W,height:H,preserveAspectRatio:'none','clip-path':'url(#province)','pointer-events':'none'});
 // Rivers and lakes on the terrain map (OpenStreetMap), already clipped to the province.
 const waterLayer=element(terrain,'g',{id:'water','pointer-events':'none','aria-hidden':'true'});
-element(waterLayer,'path',{class:'water-area',d:water.area,'fill-rule':'evenodd'});
-element(waterLayer,'path',{class:'water-line',d:water.rivers,'vector-effect':'non-scaling-stroke'});
+// Data files may be missing from an old cached page; the map still works without them.
+const waterData=typeof water==='object'?water:{area:'',rivers:''};
+element(waterLayer,'path',{class:'water-area',d:waterData.area,'fill-rule':'evenodd'});
+element(waterLayer,'path',{class:'water-line',d:waterData.rivers,'vector-effect':'non-scaling-stroke'});
 
 const modeControls = document.querySelectorAll('input[name="map-mode"]');
 const modeKey = 'chungbuk-atlas.map-mode';
@@ -56,8 +58,9 @@ regions.forEach(({name,path,label},i)=>{
 const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
 world.insertBefore(guLayer,$('labels'));
 const guPaths=new Map(), guLabels=[];
-const guMid=cheongjuGu.reduce((sum,{label:[x,y]})=>[sum[0]+x/4,sum[1]+y/4],[0,0]);
-for(const {name,path,label:[x,y]} of cheongjuGu){
+const guData=typeof cheongjuGu==='object'?cheongjuGu:[];
+const guMid=guData.reduce((sum,{label:[x,y]})=>[sum[0]+x/guData.length,sum[1]+y/guData.length],[0,0]);
+for(const {name,path,label:[x,y]} of guData){
   const node=element(guLayer,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
     'aria-label':'청주시 '+name+' 학교만 보기','aria-pressed':'false'});
   // Direction away from the city centre, used to pull the districts slightly apart when they appear.
@@ -67,13 +70,13 @@ for(const {name,path,label:[x,y]} of cheongjuGu){
   guPaths.set(name,node);
 }
 const guNames=element(guLayer,'g',{'pointer-events':'none'});
-for(const {name,label:[x,y]} of cheongjuGu){
+for(const {name,label:[x,y]} of guData){
   const text=element(guNames,'text',{x,y,class:'gu-label','text-anchor':'middle','dominant-baseline':'central'});
   text.textContent=name;guLabels.push(text);
 }
 let selectedGu='';
 function syncGu(){
-  const on=selected==='청주시' && typeInputs.some(input=>input.checked);
+  const on=guData.length>0 && selected==='청주시' && typeInputs.some(input=>input.checked);
   if(!on) selectedGu='';
   // When the districts first appear, lift each one briefly so it reads as something to press.
   if(on && !guLayer.classList.contains('visible')){
