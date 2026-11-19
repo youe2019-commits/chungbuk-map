@@ -424,38 +424,13 @@ updateCardVisibility();
 
 const schoolFilter=$('school-filter');
 const schoolToggle=$('school-toggle');
-const institutionFilter=$('institution-filter');
-const institutionToggle=$('institution-toggle');
 schoolToggle.onclick=()=>{
   schoolToggle.setAttribute('aria-expanded',String(schoolToggle.getAttribute('aria-expanded')!=='true'));
 };
-// One button shows or hides all institutions of the selected region together.
-function syncInstitutionToggle(){
-  institutionToggle.setAttribute('aria-pressed',String([...institutionInputs.values()].some(input=>input.checked)));
-}
-institutionToggle.onclick=()=>{
-  const show=institutionToggle.getAttribute('aria-pressed')!=='true';
-  for(const input of institutionInputs.values()) input.checked=show;
-  syncInstitutionToggle();
-  updateFilters();
-};
-const institutionInputs=new Map();
-for(const office of offices.filter(office=>!office.schoolType)){
-  const label=document.createElement('label');
-  const input=document.createElement('input');
-  input.type='checkbox';
-  input.value=office.name;
-  const name=document.createElement('span');
-  name.textContent=office.short;
-  label.style.setProperty('--office-color',office.color);
-  label.append(input,name);
-  $('institution-options').append(label);
-  institutionInputs.set(office.name,input);
-}
 const typeInputs=Object.entries(schoolTypes).map(([key,type])=>{
   const label=document.createElement('label');
   const input=document.createElement('input');
-  input.type='checkbox'; input.value=key; input.checked=key==='publicMiddle';
+  input.type='checkbox'; input.value=key;
   const name=document.createElement('span'); name.textContent=type.label;
   label.style.setProperty('--office-color',type.color);
   label.append(input,name);
@@ -469,7 +444,6 @@ function updateFilters(){
   history.replaceState(entryState(),'');
 }
 schoolFilter.addEventListener('change',updateFilters);
-institutionFilter.addEventListener('change',updateFilters);
 const schoolsNorthFirst=officeMarkers.filter(marker=>marker.office.schoolType)
   .sort((a,b)=>b.office.lat-a.office.lat || a.office.name.localeCompare(b.office.name,'ko'));
 function matchesSchoolLevel(office){
@@ -516,7 +490,7 @@ function layoutSchools(cards){
   const right=landscape?document.querySelector('.map-mode').getBoundingClientRect().left-8:vw-inset;
   const cheongju=selected==='청주시';
   const edgeGap=cheongju?4:8;
-  let top=landscape?edgeGap:Math.max(filter.bottom,institutionFilter.getBoundingClientRect().bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
+  let top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
   const bottom=landscape?vh-edgeGap:controls.top-mapTop-edgeGap;
   // When high-school filters crowd the map, page the labels but keep all location dots.
   const minPitch=26;
@@ -588,9 +562,10 @@ function layoutRegionCards(){
   const mobile=compact.matches;
   const pitch=44;
   const visible=[];
+  const showInstitutions=selected==='청주시' && !typeInputs.some(input=>input.checked);
   for(const marker of officeMarkers){
     const show=marker.office.region===selected && (marker.office.schoolType
-      ? matchesSchoolLevel(marker.office) : institutionInputs.get(marker.office.name).checked);
+      ? matchesSchoolLevel(marker.office) : showInstitutions);
     marker.button.hidden=!show;
     marker.line.style.display=marker.dot.style.display=show?'':'none';
     if(show)visible.push({marker,column:0});
@@ -704,13 +679,10 @@ function fitSelection(){
 function renderSelection(name,view){
   if(selected!==name || view){
     cardPage=0;
-    for(const [institution,input] of institutionInputs){
-      input.checked=Array.isArray(view?.institutions) && view.institutions.includes(institution);
-    }
     for(const input of typeInputs){
       if(Array.isArray(view?.types)) input.checked=view.types.includes(input.value);
       else if(view?.schoolLevel) input.checked=view.schoolLevel==='all'||schoolTypes[input.value].level===view.schoolLevel;
-      else input.checked=input.value==='publicMiddle' || (input.value==='publicHigh' && name!=='' && name!=='청주시');
+      else input.checked=name!=='' && name!=='청주시' && (input.value==='publicMiddle' || input.value==='publicHigh');
     }
   }
   selected=name;
@@ -720,11 +692,6 @@ function renderSelection(name,view){
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
   schoolToggle.setAttribute('aria-expanded','false');
-  syncInstitutionToggle();
-  institutionFilter.hidden=!offices.some(office=>office.region===name && !office.schoolType);
-  for(const office of offices.filter(office=>!office.schoolType)){
-    institutionInputs.get(office.name).parentElement.hidden=office.region!==name;
-  }
   schoolFilter.hidden=!offices.some(office=>office.region===name && office.schoolType);
   $('school-list-title').textContent=name+' 학교 목록';
   for(const input of typeInputs){
@@ -828,7 +795,7 @@ $('nation-toggle').onclick=()=>{
 };
 
 function entryState(){
-  return {...history.state,chungbukMap:{national:!$('nation-view').hidden,region:selected,center:[...center],zoom:z,institutions:[...institutionInputs.values()].filter(input=>input.checked).map(input=>input.value),types:typeInputs.filter(input=>input.checked).map(input=>input.value)}};
+  return {...history.state,chungbukMap:{national:!$('nation-view').hidden,region:selected,center:[...center],zoom:z,types:typeInputs.filter(input=>input.checked).map(input=>input.value)}};
 }
 
 function choose(name){

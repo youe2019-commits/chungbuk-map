@@ -1,5 +1,5 @@
 :root{--ink:#253c33;--pine:#235846;--line:#dce1d6;--paper:#fffffc;font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;color:var(--ink);background:#f5f6f0;font-synthesis:none}*{box-sizing:border-box}body{margin:0;height:100vh;height:100dvh;display:flex;flex-direction:column;min-height:300px}button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}button:focus-visible,a:focus-visible,#map:focus-visible{outline:3px solid #4877ac;outline-offset:-3px}button:disabled{opacity:.33;cursor:default}button svg,.info svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}.defs{position:absolute;width:0;height:0;overflow:hidden}header{height:78px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:var(--paper);border-bottom:1px solid #d5dbcf;z-index:3}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px}.brand strong{display:block;font-size:22px;letter-spacing:-1.4px;line-height:1.1}.brand span{display:block;font:600 9px/1.6 system-ui;letter-spacing:2.05px;color:#617367;margin-top:3px}.info{display:flex;align-items:center;gap:7px;border:1px solid #d9dfd5;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:600}.info:hover,.controls button:hover:enabled{background:#edf2e9}.field{position:relative;isolation:isolate;flex:1;overflow:hidden;background-color:#f3f5ee;background-image:linear-gradient(to right,#85987b12 1px,transparent 1px),linear-gradient(to bottom,#85987b12 1px,transparent 1px);background-size:60px 60px}.map-area,#map{position:absolute;inset:0;width:100%;height:100%}.map-area{touch-action:none;user-select:none;-webkit-user-select:none}#map{cursor:grab}#map.dragging{cursor:grabbing}.district{stroke:#75866a;stroke-width:1.05;vector-effect:non-scaling-stroke;stroke-linejoin:round;fill:transparent;cursor:pointer}.district.hover{fill:#3b643825;stroke:#365b40;stroke-width:1.6}.district.active{fill:#387b4b38;stroke:#285941;stroke-width:2.3}.map-label{font-weight:720;fill:#2e4434;paint-order:stroke;stroke:#fafcf1dd;stroke-linejoin:round;stroke-width:3px;letter-spacing:-.7px}.map-label.active{fill:#123d29}aside,.zoom,.controls>button,dialog{background:var(--paper);box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907;border:1px solid #d7ded0}aside{position:absolute;left:28px;top:28px;width:238px;border-radius:15px;overflow:auto;max-height:calc(100% - 100px);scrollbar-width:thin}
-:is(#school-toggle,#institution-toggle)[aria-expanded="true"] svg{transform:rotate(180deg)}
+#school-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
 .north{position:absolute;right:34px;top:27px;display:grid;justify-items:center;color:#355344;pointer-events:none}.north b{font:600 13px Georgia,serif}.north svg{width:32px;height:42px}.controls{position:absolute;bottom:26px;right:26px;display:grid;gap:9px}.zoom,.controls>button{border-radius:10px;overflow:hidden}.controls button,.modal-title button{display:grid;place-items:center;width:44px;height:44px}.zoom button+button{border-top:1px solid var(--line)}.scale{position:absolute;left:31px;bottom:28px;pointer-events:none;display:grid;gap:3px;font:600 10px/1.2 system-ui;color:#57634f;letter-spacing:.3px;text-shadow:0 0 3px white}.scale i{height:5px;display:block;border:solid #69765e;border-width:0 1px 2px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}dialog{border-radius:16px;color:var(--ink);max-width:min(420px,calc(100vw - 36px));padding:24px;max-height:85dvh}dialog::backdrop{background:#1d302b50}.modal-title{display:flex;align-items:center;justify-content:space-between;gap:30px}.modal-title h2{font-size:22px;margin:0}.modal-title button{width:32px;height:32px}dialog h3{font-size:14px;margin:20px 0 5px}dialog p{color:#536153;font-size:14px;line-height:1.65;margin:7px 0 0}dialog a{color:#2e6242;white-space:nowrap;text-underline-offset:3px}
 @media(max-width:720px),(max-height:540px){header{height:61px;padding:0 17px}.logo{width:34px;height:34px}.brand{gap:9px}.brand strong{font-size:19px}.brand span{font-size:8px;letter-spacing:1.5px}.info{padding:8px 10px;font-size:12px}.info svg{width:17px;height:17px}aside{left:15px;top:16px;width:auto;max-height:calc(100% - 30px);max-width:calc(100% - 75px);border-radius:10px}.north{top:18px;right:19px}.north svg{height:33px}.controls{bottom:18px;right:14px}.scale{bottom:20px;left:18px}.field{background-size:42px 42px}}
 .map-mode {
@@ -68,21 +68,14 @@
 #panel { width:116px; }
 .district:focus-visible { stroke:#285941; stroke-width:3; }
 .school-filter { top:28px; left:150px; right:auto; display:block; width:116px; padding:0; border-radius:15px; box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907; }
-#institution-filter { margin-top:45px; }
-#school-filter[hidden] + #institution-filter { margin-top:0; }
-#school-filter:not([hidden]):has(+ #institution-filter:not([hidden])) { border-bottom-left-radius:0; border-bottom-right-radius:0; }
-#school-filter:not([hidden]) + #institution-filter { border-top-left-radius:0; border-top-right-radius:0; }
-#institution-filter #institution-options { display:none; }
-.school-filter[hidden], :is(#school-toggle,#institution-toggle)[aria-expanded="false"] + :is(#school-options,#institution-options) { display:none; }
-:is(#school-toggle,#institution-toggle) { display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%; height:44px; padding:0 12px; font-size:13px; font-weight:650; border-radius:inherit; }
-#institution-toggle { justify-content:center; }
-#institution-toggle[aria-pressed="true"] { background:var(--pine); color:white; }
-:is(#school-toggle,#institution-toggle) svg { width:15px; height:15px; }
-:is(#school-options,#institution-options) { position:absolute; z-index:1; top:calc(100% + 5px); left:0; display:flex; width:max-content; max-width:calc(100vw - 20px); overflow-x:auto; padding:2px; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
-:is(#school-options,#institution-options) label { display:flex; align-items:center; min-height:44px; padding:0 4px; gap:3px; flex:none; }
-:is(#school-options,#institution-options) input { position:static; width:16px; height:16px; opacity:1; accent-color:var(--office-color); }
-:is(#school-options,#institution-options) label span { display:inline; min-width:0; min-height:0; white-space:nowrap; background:none; color:var(--office-color); }
-:is(#school-options,#institution-options) #show-school-list { flex:none; border:0; border-left:1px solid var(--line); min-height:44px; padding:0 8px; }
+.school-filter[hidden], #school-toggle[aria-expanded="false"] + #school-options { display:none; }
+#school-toggle { display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%; height:44px; padding:0 12px; font-size:13px; font-weight:650; border-radius:inherit; }
+#school-toggle svg { width:15px; height:15px; }
+#school-options { position:absolute; z-index:1; top:calc(100% + 5px); left:0; display:flex; width:max-content; max-width:calc(100vw - 20px); overflow-x:auto; padding:2px; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
+#school-options label { display:flex; align-items:center; min-height:44px; padding:0 4px; gap:3px; flex:none; }
+#school-options input { position:static; width:16px; height:16px; opacity:1; accent-color:var(--office-color); }
+#school-options label span { display:inline; min-width:0; min-height:0; white-space:nowrap; background:none; color:var(--office-color); }
+#school-options #show-school-list { flex:none; border:0; border-left:1px solid var(--line); min-height:44px; padding:0 8px; }
 .map-mode:not(.school-filter) { right:28px; padding:0; gap:0; background:transparent; box-shadow:none; border:0; }
 .map-mode:not(.school-filter) label { display:grid; align-items:center; width:44px; height:44px; }
 .map-mode:not(.school-filter) span { min-width:0; min-height:30px; font-size:12px; border:1px solid var(--line); }
@@ -103,7 +96,7 @@
 .school-marker:hover span, .school-marker:focus-visible span {
   background: color-mix(in srgb,var(--office-color) 16%,white);
 }
-.cheongju-cards .office-marker span { height:min(100%,var(--cheongju-card-height,24px)); }
+.cheongju-cards .school-marker span { height:min(100%,var(--cheongju-card-height,24px)); }
 .specialized-high.school-marker span { position:relative; padding-left:12px; }
 .specialized-high.school-marker span::before, #office-card.specialized-high::before {
   content:"*" / ""; position:absolute; left:0; top:-3px; color:#b91c1c;
@@ -134,7 +127,7 @@
   .header-actions .info { padding-inline: 7px; }
 }
 
-:is(#school-options,#institution-options) label[hidden] { display:none; }
+#school-options label[hidden] { display:none; }
 #region-info { display:block; min-height:44px; width:100%; padding:0 9px; color:var(--pine); font-size:12px; font-weight:650; }
 #region-info[hidden] { display:none; }
 #card-pages { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); font-size:12px; }
