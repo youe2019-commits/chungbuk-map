@@ -351,3 +351,4 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .compare-q { margin:6px 0 0; font-size:14px; font-weight:700; line-height:1.5; color:#24523d; text-wrap:pretty; }
 .nowrap { white-space:nowrap; }
 @media(max-width:400px){ .compare-tabs button { font-size:13px; padding:0 4px; } }
+#gu-layer g[hidden] { display:none; }

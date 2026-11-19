@@ -68,50 +68,62 @@ for(const {short,label:[x,y]} of neighbourData){
   const text=element(neighbourNames,'text',{x,y,class:'neighbour-label','text-anchor':'middle','dominant-baseline':'central'});
   text.textContent=short;neighbourLabels.push(text);
 }
-// Cheongju's four districts (구) appear over the city once school cards are shown there.
+// Sub-areas (청주 4개 구, 진천·음성·보은 읍·면) appear over the district once school cards are shown there.
 const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
 world.insertBefore(guLayer,$('labels'));
-const guPaths=new Map(), guLabels=[];
-const guData=typeof cheongjuGu==='object'?cheongjuGu:[];
-const guMid=guData.reduce((sum,{label:[x,y]})=>[sum[0]+x/guData.length,sum[1]+y/guData.length],[0,0]);
-for(const {name,path,label:[x,y]} of guData){
-  const node=element(guLayer,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
-    'aria-label':'청주시 '+name+' 학교만 보기','aria-pressed':'false'});
-  // Direction away from the city centre, used to pull the districts slightly apart when they appear.
-  const length=Math.hypot(x-guMid[0],y-guMid[1])||1;
-  node.style.setProperty('--gu-dx',((x-guMid[0])/length*4).toFixed(2)+'px');
-  node.style.setProperty('--gu-dy',((y-guMid[1])/length*4).toFixed(2)+'px');
-  guPaths.set(name,node);
-}
-const guNames=element(guLayer,'g',{'pointer-events':'none'});
-for(const {name,label:[x,y]} of guData){
-  const text=element(guNames,'text',{x,y,class:'gu-label','text-anchor':'middle','dominant-baseline':'central'});
-  text.textContent=name;guLabels.push(text);
+const guData=typeof subdivisions==='object'?subdivisions:{};
+const guGroups=new Map(), guPaths=new Map(), guLabels=[];
+for(const [region,parts] of Object.entries(guData)){
+  const group=element(guLayer,'g',{'data-sub-region':region});
+  group.setAttribute('hidden','');
+  const mid=parts.reduce((sum,{label:[x,y]})=>[sum[0]+x/parts.length,sum[1]+y/parts.length],[0,0]);
+  const paths=new Map();
+  for(const {name,path,label:[x,y]} of parts){
+    const node=element(group,'path',{d:path,class:'gu','data-gu':name,role:'button',tabindex:-1,
+      'aria-label':region+' '+name+' 학교만 보기','aria-pressed':'false'});
+    // Direction away from the district centre, used to pull the parts slightly apart when they appear.
+    const length=Math.hypot(x-mid[0],y-mid[1])||1;
+    node.style.setProperty('--gu-dx',((x-mid[0])/length*4).toFixed(2)+'px');
+    node.style.setProperty('--gu-dy',((y-mid[1])/length*4).toFixed(2)+'px');
+    paths.set(name,node);
+  }
+  const names=element(group,'g',{'pointer-events':'none'});
+  for(const {name,label:[x,y]} of parts){
+    const text=element(names,'text',{x,y,class:'gu-label','text-anchor':'middle','dominant-baseline':'central'});
+    text.textContent=name;guLabels.push(text);
+  }
+  guGroups.set(region,group);guPaths.set(region,paths);
 }
 let selectedGu='';
 function syncGu(){
-  const on=guData.length>0 && selected==='청주시' && typeInputs.some(input=>input.checked);
+  const on=guGroups.has(selected) && typeInputs.some(input=>input.checked);
   if(!on) selectedGu='';
-  // When the districts first appear, lift each one briefly so it reads as something to press.
-  if(on && !guLayer.classList.contains('visible')){
+  const shown=on?selected:'';
+  // When the parts first appear, lift each one briefly so it reads as something to press.
+  if(on && (!guLayer.classList.contains('visible') || guLayer.dataset.region!==shown)){
     guLayer.classList.remove('intro');
     void guLayer.getBoundingClientRect();
     guLayer.classList.add('intro');
     clearTimeout(syncGu.timer);
     syncGu.timer=setTimeout(()=>guLayer.classList.remove("intro"),2400);
   }
+  guLayer.dataset.region=shown;
   guLayer.classList.toggle('visible',on);
   guLayer.classList.toggle('picked',Boolean(selectedGu));
-  for(const [name,path] of guPaths){
-    path.classList.toggle('active',name===selectedGu);
-    path.setAttribute('aria-pressed',String(name===selectedGu));
-    path.setAttribute('tabindex',on?0:-1);
+  for(const [region,group] of guGroups){
+    // While fading out, keep the last group showing; otherwise only the selected district's parts.
+    if(on) group.toggleAttribute('hidden',region!==shown);
+    for(const [name,path] of guPaths.get(region)){
+      path.classList.toggle('active',region===shown && name===selectedGu);
+      path.setAttribute('aria-pressed',String(region===shown && name===selectedGu));
+      path.setAttribute('tabindex',on && region===shown?0:-1);
+    }
   }
-  labels.get('청주시').classList.toggle('muted',on);
+  for(const [name,label] of labels) label.classList.toggle('muted',on && name===shown);
 }
 function toggleGu(name){
   selectedGu=selectedGu===name?'':name;
-  $('announce').textContent=selectedGu?'청주시 '+selectedGu+' 학교 보기':'청주시 전체 학교 보기';
+  $('announce').textContent=selectedGu?selected+' '+selectedGu+' 학교 보기':selected+' 전체 학교 보기';
   updateFilters();
 }
 let selected='',z=1,base=1,origin=[0,0],center=[W/2,H/2],vw=0,vh=0;
@@ -554,7 +566,7 @@ const schoolsNorthFirst=officeMarkers.filter(marker=>marker.office.schoolType)
   .sort((a,b)=>b.office.lat-a.office.lat || a.office.name.localeCompare(b.office.name,'ko'));
 function matchesSchoolLevel(office){
   return typeInputs.some(input=>input.checked && filterTypes(input.value).includes(office.schoolType))
-    && (!selectedGu || office.address.includes('청주시 '+selectedGu));
+    && (!selectedGu || office.address.split(/\s+/)[1]===selectedGu);
 }
 
 const schoolListDialog=$('school-list-dialog');
