@@ -69,6 +69,14 @@ let selectedGu='';
 function syncGu(){
   const on=selected==='청주시' && typeInputs.some(input=>input.checked);
   if(!on) selectedGu='';
+  // When the districts first appear, lift each one briefly so it reads as something to press.
+  if(on && !guLayer.classList.contains('visible')){
+    guLayer.classList.remove('intro');
+    void guLayer.getBoundingClientRect();
+    guLayer.classList.add('intro');
+    clearTimeout(syncGu.timer);
+    syncGu.timer=setTimeout(()=>guLayer.classList.remove('intro'),2600);
+  }
   guLayer.classList.toggle('visible',on);
   guLayer.classList.toggle('picked',Boolean(selectedGu));
   for(const [name,path] of guPaths){

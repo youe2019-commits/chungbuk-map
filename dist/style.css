@@ -277,3 +277,14 @@ header { height:52px; padding:0 24px; }
 .map-label.muted { opacity:0; transition:opacity .45s ease; }
 #nation-chungbuk { pointer-events:none; }
 @media(max-width:720px){ #school-options { flex-wrap:wrap; width:calc(100vw - 30px); max-width:none; overflow-x:visible; } }
+/* Brief raised effect on each district (구) when they appear. */
+.gu { transform-box:fill-box; transform-origin:center; }
+#gu-layer.intro .gu { animation:gu-lift 1.1s ease-in-out both; }
+#gu-layer.intro .gu:nth-of-type(2) { animation-delay:.3s; }
+#gu-layer.intro .gu:nth-of-type(3) { animation-delay:.6s; }
+#gu-layer.intro .gu:nth-of-type(4) { animation-delay:.9s; }
+@keyframes gu-lift {
+  0%,100% { transform:none; filter:none; }
+  45% { transform:translate(0,-1.5%) scale(1.04); fill:#ffffff8c; stroke-dasharray:none; filter:drop-shadow(0 2px 1.5px #1d3b2c80); }
+}
+@media (prefers-reduced-motion:reduce){ #gu-layer.intro .gu { animation:none; } }
