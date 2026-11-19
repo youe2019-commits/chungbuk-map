@@ -110,8 +110,8 @@ for(const [region,parts] of Object.entries(guData)){
 }
 let selectedGu='';
 function syncGu(){
-  const on=guGroups.has(selected) && typeInputs.some(input=>input.checked);
-  if(!on) selectedGu='';
+  const on=!favoritesOnly && guGroups.has(selected) && typeInputs.some(input=>input.checked);
+  if(!on && !favoritesOnly) selectedGu='';
   const shown=on?selected:'';
   // When the parts first appear, lift each one briefly so it reads as something to press.
   if(on && (!guLayer.classList.contains('visible') || guLayer.dataset.region!==shown)){
@@ -579,6 +579,10 @@ function showOffice(office){
     $('school-year').textContent=stats.year||2026;
     $('school-source').href=stats.source;
   }
+  const favoriteButton=$('office-favorite');
+  favoriteButton.hidden=!office.schoolType;
+  favoriteButton.dataset.office=office.name;
+  if(office.schoolType) updateDetailFavorite(office.name);
   $('office-address').textContent='충청북도 '+office.address;
   $('office-link').href=office.url;
   card.showModal();
@@ -614,21 +618,49 @@ const officeMarkers=offices.map(office=>{
   button.dataset.office=office.name;
   return {office,point:projectOffice(office),line,dot,button,title};
 });
-const cardToggle=$('card-visibility');
-const cardsKey='chungbuk-atlas.cards-visible';
-let cardsVisible=true;
-try { cardsVisible=localStorage.getItem(cardsKey)!=='false'; } catch {}
-function updateCardVisibility(){
-  $('area').classList.toggle('cards-hidden',!cardsVisible);
-  cardToggle.textContent=cardsVisible?'카드 숨기기':'카드 보기';
+const favoritesKey='chungbuk-atlas.favorite-schools';
+const schoolMarkers=new Map(officeMarkers.filter(marker=>marker.office.schoolType).map(marker=>[marker.office.name,marker]));
+const regionsWithSchools=new Set([...schoolMarkers.values()].map(marker=>marker.office.region));
+let favorites=new Set(), favoritesOnly=false;
+function loadFavorites(){
+  try {
+    const saved=JSON.parse(localStorage.getItem(favoritesKey)||'[]');
+    if(Array.isArray(saved)) favorites=new Set(saved.filter(name=>schoolMarkers.has(name)));
+  } catch { /* Keep in-memory favorites when storage is unavailable. */ }
 }
-cardToggle.onclick=()=>{
-  cardsVisible=!cardsVisible;
-  updateCardVisibility();
+function markFavorite(name){
+  const button=schoolMarkers.get(name).button;
+  const saved=favorites.has(name);
+  button.classList.toggle('is-favorite',saved);
+  button.setAttribute('aria-label',name+(saved?' (찜한 학교)':'')+' 설명 보기');
+  button.title=saved?'길게 눌러 찜 해제':'길게 눌러 찜하기';
+}
+function updateDetailFavorite(name){
+  const button=$('office-favorite');
+  button.textContent=favorites.has(name)?'❤️ 찜 해제':'♡ 찜하기';
+  button.setAttribute('aria-pressed',String(favorites.has(name)));
+}
+function toggleFavorite(name){
+  if(!schoolMarkers.has(name))return;
+  if(favorites.has(name)) favorites.delete(name);
+  else favorites.add(name);
+  try { localStorage.setItem(favoritesKey,JSON.stringify([...favorites])); } catch {}
+  markFavorite(name);
+  if($('office-favorite').dataset.office===name) updateDetailFavorite(name);
+  $('announce').textContent=name+(favorites.has(name)?' 찜했습니다.':' 찜을 해제했습니다.');
+  if(favoritesOnly){layoutRegionCards();draw()}
+}
+loadFavorites();
+for(const name of schoolMarkers.keys()) markFavorite(name);
+$('office-favorite').onclick=e=>toggleFavorite(e.currentTarget.dataset.office);
+$('favorites-only').onclick=()=>{
+  const national=!$('nation-view').hidden;
+  if(national) $('fit').click();
+  favoritesOnly=national || !favoritesOnly;
+  $('favorites-only').setAttribute('aria-pressed',String(favoritesOnly));
+  cardPage=0;
   layoutRegionCards();draw();
-  try { localStorage.setItem(cardsKey,String(cardsVisible)); } catch {}
 };
-updateCardVisibility();
 
 const schoolFilter=$('school-filter');
 const schoolToggle=$('school-toggle');
@@ -665,20 +697,26 @@ function matchesSchoolLevel(office){
 }
 
 const schoolListDialog=$('school-list-dialog');
-$('show-school-list').onclick=()=>{
+function openSchoolList(onlySaved){
   const list=$('school-list');
   list.replaceChildren();
-  for(const {office} of schoolsNorthFirst.filter(marker=>marker.office.region===selected && matchesSchoolLevel(marker.office))){
+  $('school-list-title').textContent=onlySaved?'찜한 학교 목록':selected+' 학교 목록';
+  for(const {office} of schoolsNorthFirst){
+    if(onlySaved ? !favorites.has(office.name) : office.region!==selected || !matchesSchoolLevel(office))continue;
     const item=document.createElement('li'), button=document.createElement('button');
     const type=document.createElement('small');
-    type.textContent=office.schoolType.label;
+    type.textContent=onlySaved?office.region+' · '+office.schoolType.label:office.schoolType.label;
     type.style.color=markerColor(office);
     button.append(office.name,type);
     button.onclick=()=>{schoolListDialog.close();showOffice(office)};
     item.append(button);list.append(item);
   }
+  $('school-list-note').textContent=onlySaved && !list.children.length
+    ? '아직 찜한 학교가 없습니다. 지도에서 학교 카드를 길게 눌러 보세요.' : '북쪽에서 남쪽 순서';
   schoolListDialog.showModal();
-};
+}
+$('show-school-list').onclick=()=>openSchoolList(false);
+$('favorites-list').onclick=()=>openSchoolList(true);
 $('close-school-list').onclick=()=>schoolListDialog.close();
 
 let cardPage=0;
@@ -704,12 +742,15 @@ function layoutSchools(cards){
   const right=landscape?document.querySelector('.map-mode').getBoundingClientRect().left-8:vw-inset;
   const cheongju=selected==='청주시';
   const edgeGap=cheongju?4:8;
-  let top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
+  const topControls=Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom,document.querySelector('.map-mode').getBoundingClientRect().bottom);
+  let top=landscape?edgeGap:topControls-mapTop+edgeGap;
   const bottom=landscape?vh-edgeGap:controls.top-mapTop-edgeGap;
   // When high-school filters crowd the map, page the labels but keep all location dots.
   const minPitch=26;
-  if(cheongju && cards.some(({marker})=>marker.office.schoolType?.level==='high')
+  if((favoritesOnly || (cheongju && cards.some(({marker})=>marker.office.schoolType?.level==='high')))
       && Math.ceil(cards.length/2)*minPitch>bottom-top){
+    $('panel').hidden=false;
+    $('compare-open').hidden=true;
     cardPages.hidden=false;
     if(!landscape)top=Math.max(top,cardPages.getBoundingClientRect().bottom-mapTop+edgeGap);
     const perPage=2*Math.max(1,Math.floor((bottom-top)/minPitch));
@@ -773,21 +814,29 @@ function layoutSchools(cards){
 let annotationView=null;
 function layoutRegionCards(){
   syncGu();
+  $('panel').hidden=!selected;
+  $('compare-open').hidden=Boolean(selected);
+  schoolFilter.hidden=favoritesOnly || !regionsWithSchools.has(selected);
   cardPages.hidden=true;
   const mobile=compact.matches;
   const pitch=44;
   const visible=[];
   const showInstitutions=selected==='청주시' && !typeInputs.some(input=>input.checked);
   for(const marker of officeMarkers){
-    const show=marker.office.region===selected && (marker.office.schoolType
-      ? matchesSchoolLevel(marker.office) : showInstitutions);
+    const {office}=marker;
+    const show=favoritesOnly
+      ? (!selected || office.region===selected) && favorites.has(office.name)
+      : office.region===selected && (office.schoolType ? matchesSchoolLevel(office) : showInstitutions);
     marker.button.hidden=!show;
     marker.line.style.display=marker.dot.style.display=show?'':'none';
     if(show)visible.push({marker,column:0});
   }
+  const empty=$('favorites-empty');
+  empty.hidden=!favoritesOnly || visible.length>0;
+  if(!empty.hidden) empty.textContent=(selected?selected+'에':'지도에')+' 찜한 학교가 없습니다.';
   if(!visible.length){annotationView=null;return}
-  const bounds=regions.find(region=>region.name===selected).bounds;
-  const scale=base*fittedZoom(bounds);
+  const bounds=selected?regions.find(region=>region.name===selected).bounds:[[0,0],[W,H]];
+  const scale=selected?base*fittedZoom(bounds):base;
   const midX=(bounds[0][0]+bounds[1][0])/2, midY=(bounds[0][1]+bounds[1][1])/2;
   annotationView={scale,midX,midY};
   for(const card of visible){
@@ -927,14 +976,9 @@ function renderSelection(name,view){
   selected=name;
   $('office-markers').classList.toggle('cheongju-cards',name==='청주시');
   setNational(false);
-  $('panel').hidden=!name;
-  $('compare-open').hidden=Boolean(name);
   $('region-info').hidden=!name;
-  cardToggle.hidden=!offices.some(office=>office.region===name);
   // The school filter opens by itself whenever a district with schools is chosen.
-  schoolToggle.setAttribute('aria-expanded',String(entering && offices.some(office=>office.region===name && office.schoolType)));
-  schoolFilter.hidden=!offices.some(office=>office.region===name && office.schoolType);
-  $('school-list-title').textContent=name+' 학교 목록';
+  schoolToggle.setAttribute('aria-expanded',String(entering && regionsWithSchools.has(name)));
   for(const input of typeInputs){
     input.parentElement.hidden=!offices.some(office=>office.region===name && filterTypes(input.value).includes(office.schoolType));
   }
@@ -962,7 +1006,11 @@ function setNational(active){
   $('fit').setAttribute('aria-pressed',String(!active));
   $('nation-toggle').setAttribute('aria-pressed',String(active));
   document.querySelector('.brand strong').textContent=active?'전국 지도':'충북 지도';
-  if(active){setNationScale(1);document.querySelector('.nation-scroll').scrollTop=0}
+  if(active){
+    favoritesOnly=false;
+    $('favorites-only').setAttribute('aria-pressed','false');
+    setNationScale(1);document.querySelector('.nation-scroll').scrollTop=0;
+  }
 }
 // The national map zooms on its own (pinch or ctrl/trackpad wheel) instead of the browser zooming the page,
 // so cards and dialogs opened from it always appear at their normal size.
@@ -1125,7 +1173,10 @@ $('fit').onclick=()=>{
 // Track the SVG and the overlaid label buttons as a single gesture surface.
 const gestureArea=$('area');
 const touches=new Map();
-let start=[], tapTarget=null, pendingMapTap=null;
+let start=[], tapTarget=null, pendingMapTap=null, favoriteTimer;
+gestureArea.addEventListener('contextmenu',e=>{
+  if(e.target.closest('.school-marker') || tapTarget?.matches('.school-marker')) e.preventDefault();
+});
 function point(e){const r=map.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const middle=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
@@ -1133,11 +1184,19 @@ gestureArea.addEventListener('wheel',e=>{e.preventDefault();zoom(Math.exp(-Math.
 gestureArea.addEventListener('pointerdown',e=>{
   if(e.button!==0)return;
   const position=point(e);
+  clearTimeout(favoriteTimer);
   pendingMapTap=null;
   tapTarget=null;
   if(!touches.size){
     start=position;
     tapTarget=e.target.closest('[data-office],[data-gu],[data-region],[data-neighbour]');
+    if(tapTarget?.matches('.school-marker')){
+      const card=tapTarget;
+      favoriteTimer=setTimeout(()=>{
+        tapTarget=null;
+        if(!card.hidden && $('nation-view').hidden) toggleFavorite(card.dataset.office);
+      },550);
+    }
   }
   touches.set(e.pointerId,position);
   gestureArea.setPointerCapture(e.pointerId);
@@ -1155,6 +1214,7 @@ gestureArea.addEventListener('pointermove',e=>{
     zoom(dist(now,other)/Math.max(dist(old,other),1),middle(old,other),middle(now,other));
   }else{
     if(tapTarget && dist(start,now)<=5)return;
+    clearTimeout(favoriteTimer);
     tapTarget=null;
     center[0]-=(now[0]-old[0])/(base*z);
     center[1]-=(now[1]-old[1])/(base*z);
@@ -1163,6 +1223,7 @@ gestureArea.addEventListener('pointermove',e=>{
 });
 function release(e){
   if(!touches.delete(e.pointerId))return;
+  clearTimeout(favoriteTimer);
   if(touches.size)return;
   map.classList.remove('dragging');
   if(e.type==='pointerup' && dist(start,point(e))<=5)pendingMapTap=tapTarget;

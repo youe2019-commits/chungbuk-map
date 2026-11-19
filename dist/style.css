@@ -121,8 +121,6 @@
 }
 
 .header-actions { display: flex; gap: 6px; align-items: center; }
-#card-visibility { min-height: 40px; white-space: nowrap; }
-#card-visibility[hidden], .cards-hidden #office-markers, .cards-hidden #connectors { display: none; }
 @media(max-width:375px) {
   header { padding-inline: 9px; }
   .header-actions { gap: 4px; }
@@ -133,7 +131,7 @@
 #region-info { display:block; min-height:44px; width:100%; padding:0 9px; color:var(--pine); font-size:12px; font-weight:650; }
 #region-info[hidden] { display:none; }
 #card-pages { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); font-size:12px; }
-#card-pages[hidden], .field:has(.cards-hidden) #card-pages { display:none; }
+#card-pages[hidden] { display:none; }
 #card-pages button { min-height:36px; width:36px; font-size:21px; }
 #card-pages button:disabled { opacity:.35; }
 #region-dialog { width:380px; }
@@ -409,3 +407,20 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .neighbour-cities path { fill:none; stroke:#f7f8f3; stroke-width:.8px; vector-effect:non-scaling-stroke; stroke-linejoin:round; }
 .neighbour-cities .city-name { font-weight:600; fill:#7f867c; stroke:#eef0ea; paint-order:stroke; }
 .neighbour-cities.far .city-name { display:none; }
+
+.favorite-action, .school-marker.is-favorite > span { position:relative; }
+.favorite-action::after, .school-marker.is-favorite > span::after {
+  content:"❤️" / ""; position:absolute; top:0; right:0; transform:translate(25%,-40%);
+  font-size:12px; line-height:1; pointer-events:none;
+}
+.favorite-action { white-space:nowrap; }
+#favorites-only[aria-pressed="true"] { background:var(--pine); color:white; border-color:var(--pine); }
+.school-marker { -webkit-touch-callout:none; }
+#office-favorite { align-self:center; margin-left:auto; border:1px solid var(--line); border-radius:8px; padding:5px 9px; font-size:13px; }
+#favorites-empty { position:absolute; top:45%; left:50%; transform:translateX(-50%); margin:0; padding:8px 12px; border-radius:8px; background:var(--paper); white-space:nowrap; font-size:14px; pointer-events:none; }
+@media(max-width:400px){
+  header { padding-inline:7px; }
+  .header-actions { gap:5px; }
+  .header-actions .info { padding-inline:5px; font-size:11px; }
+  .brand { gap:4px; white-space:nowrap; }
+}
