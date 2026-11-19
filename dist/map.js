@@ -34,11 +34,12 @@ for (const control of modeControls) {
   });
 }
 
-const paths=new Map(), labels=new Map(), buttons=new Map();
+const paths=new Map(), labels=new Map();
 regions.forEach(({name,path,label},i)=>{
   element($('province'),'path',{d:path,'clip-rule':'evenodd'});
   element(land,'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
-  const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name});
+  const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name,
+    role:'button',tabindex:0,'aria-label':name,'aria-pressed':'false'});
   paths.set(name,region);
   region.addEventListener('pointerenter',()=>region.classList.add('hover'));
   region.addEventListener('pointerleave',()=>region.classList.remove('hover'));
@@ -46,11 +47,6 @@ regions.forEach(({name,path,label},i)=>{
   const [x,y]=name==='증평군'?[183,328]:name==='청주시'?[149,487]:label;
   const labelNode=element($('labels'),'text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'map-label'});
   labelNode.textContent=name;labels.set(name,labelNode);
-});
-['청주시','충주시','제천시','보은군','옥천군','영동군','증평군','진천군','괴산군','음성군','단양군'].forEach(name=>{
-  const button=document.createElement('button');button.textContent=name;
-  $(name.endsWith('시')?'cities':'counties').append(button);
-  button.onclick=()=>choose(name);buttons.set(name,button);
 });
 let selected='',z=1,base=1,origin=[0,0],center=[W/2,H/2],vw=0,vh=0;
 const compact=matchMedia('(max-width:720px), (max-height:540px)');
@@ -520,7 +516,7 @@ function layoutSchools(cards){
   const right=landscape?document.querySelector('.map-mode').getBoundingClientRect().left-8:vw-inset;
   const cheongju=selected==='청주시';
   const edgeGap=cheongju?4:8;
-  let top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
+  let top=landscape?edgeGap:Math.max(filter.bottom,institutionFilter.getBoundingClientRect().bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
   const bottom=landscape?vh-edgeGap:controls.top-mapTop-edgeGap;
   // When high-school filters crowd the map, page the labels but keep all location dots.
   const minPitch=26;
@@ -705,7 +701,6 @@ function fitSelection(){
   }else{center=[W/2,H/2];z=1}
   draw();
 }
-function panel(open){$('panel').classList.toggle('open',open);$('mobile-select').setAttribute('aria-expanded',String(open))}
 function renderSelection(name,view){
   if(selected!==name || view){
     cardPage=0;
@@ -721,6 +716,7 @@ function renderSelection(name,view){
   selected=name;
   $('office-markers').classList.toggle('cheongju-cards',name==='청주시');
   setNational(false);
+  $('panel').hidden=!name;
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
   schoolToggle.setAttribute('aria-expanded','false');
@@ -734,13 +730,12 @@ function renderSelection(name,view){
   for(const input of typeInputs){
     input.parentElement.hidden=!offices.some(office=>office.region===name && office.schoolType===schoolTypes[input.value]);
   }
-  buttons.forEach((b,n)=>{b.classList.toggle('selected',n===name);b.setAttribute('aria-pressed',String(n===name))});
-  paths.forEach((p,n)=>p.classList.toggle('active',n===name));
+  paths.forEach((path,n)=>{
+    path.classList.toggle('active',n===name);
+    path.setAttribute('aria-pressed',String(n===name));
+  });
   if(name)$('districts').append(paths.get(name));
-  $('all').classList.toggle('selected',!name);$('all').setAttribute('aria-pressed',String(!name));
-  $('mobile-name').textContent=name||'시·군 확대';$('announce').textContent=name?name+' 확대 보기':'충청북도 전체 보기';
-  if($('panel').classList.contains('open'))$('mobile-select').focus();
-  panel(false);
+  $('announce').textContent=name?name+' 확대 보기':'충청북도 전체 보기';
   layoutRegionCards();
   if(view){
     center=[...view.center];
@@ -759,10 +754,7 @@ function setNational(active){
   $('nation-toggle').hidden=Boolean(selected);
   $('nation-toggle').textContent=active?'충북 전체 보기':'전국 지도 보기';
   document.querySelector('.brand strong').textContent=active?'전국 지도':'충북 지도';
-  if(active){
-    panel(false);
-    document.querySelector('.nation-scroll').scrollTop=0;
-  }
+  if(active)document.querySelector('.nation-scroll').scrollTop=0;
 }
 const ministryCard=$('ministry-card');
 const lesson=$('relocation-lesson');
@@ -880,11 +872,7 @@ function zoom(factor,p=origin,q=p){
   center[1]+=(p[1]-origin[1])/(base*old)-(q[1]-origin[1])/(base*z);draw();
 }
 $('zoom-range').oninput=e=>zoom(Number(e.target.value)/z);
-$('all').onclick=$('fit').onclick=()=>choose('');$('plus').onclick=()=>zoom(1.45);$('minus').onclick=()=>zoom(1/1.45);
-$('mobile-select').onclick=()=>panel(!$('panel').classList.contains('open'));
-$('info').onclick=()=>{panel(false);$('details').showModal()};$('close').onclick=()=>$('details').close();
-$('details').addEventListener('click',e=>{if(e.target===$('details')){const r=$('details').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('details').close()}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('panel').classList.contains('open')){panel(false);$('mobile-select').focus()}});
+$('fit').onclick=()=>choose('');$('plus').onclick=()=>zoom(1.45);$('minus').onclick=()=>zoom(1/1.45);
 // Track the SVG and the overlaid label buttons as a single gesture surface.
 const gestureArea=$('area');
 const touches=new Map();
@@ -900,10 +888,7 @@ gestureArea.addEventListener('pointerdown',e=>{
   tapTarget=null;
   if(!touches.size){
     start=position;
-    if(!$('panel').classList.contains('open')){
-      tapTarget=e.target.closest('[data-office],[data-region]');
-    }
-    panel(false);
+    tapTarget=e.target.closest('[data-office],[data-region]');
   }
   touches.set(e.pointerId,position);
   gestureArea.setPointerCapture(e.pointerId);
@@ -942,13 +927,22 @@ gestureArea.addEventListener('lostpointercapture',e=>{
 // Commit selection on click so a newly revealed label cannot receive the same tap.
 // Keyboard and assistive-technology activations have no preceding pointer gesture.
 gestureArea.addEventListener('click',e=>{
-  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker'):pendingMapTap;
+  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-region]'):pendingMapTap;
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
   // Clicking the already selected district again returns to the whole-province view.
   else if(target?.dataset.region)choose(target.dataset.region===selected?'':target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
+  const region=e.target.dataset.region;
+  if(region && (e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    if(!e.repeat){
+      choose(region===selected?'':region);
+      e.target.focus();
+    }
+    return;
+  }
   const delta=45/(base*z);
   if(e.key==='+'||e.key==='=')zoom(1.45);else if(e.key==='-')zoom(1/1.45);else if(e.key==='Home')choose('');
   else if(e.key==='ArrowLeft')center[0]-=delta;else if(e.key==='ArrowRight')center[0]+=delta;else if(e.key==='ArrowUp')center[1]-=delta;else if(e.key==='ArrowDown')center[1]+=delta;else return;
