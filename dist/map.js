@@ -360,12 +360,19 @@ const schoolFilter=$('school-filter');
 const schoolToggle=$('school-toggle');
 const institutionFilter=$('institution-filter');
 const institutionToggle=$('institution-toggle');
-for(const [toggle,other] of [[schoolToggle,institutionToggle],[institutionToggle,schoolToggle]]){
-  toggle.onclick=()=>{
-    other.setAttribute('aria-expanded','false');
-    toggle.setAttribute('aria-expanded',String(toggle.getAttribute('aria-expanded')!=='true'));
-  };
+schoolToggle.onclick=()=>{
+  schoolToggle.setAttribute('aria-expanded',String(schoolToggle.getAttribute('aria-expanded')!=='true'));
+};
+// One button shows or hides all institutions of the selected region together.
+function syncInstitutionToggle(){
+  institutionToggle.setAttribute('aria-pressed',String([...institutionInputs.values()].some(input=>input.checked)));
 }
+institutionToggle.onclick=()=>{
+  const show=institutionToggle.getAttribute('aria-pressed')!=='true';
+  for(const input of institutionInputs.values()) input.checked=show;
+  syncInstitutionToggle();
+  updateFilters();
+};
 const institutionInputs=new Map();
 for(const office of offices.filter(office=>!office.schoolType)){
   const label=document.createElement('label');
@@ -617,7 +624,7 @@ function renderSelection(name,view){
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
   schoolToggle.setAttribute('aria-expanded','false');
-  institutionToggle.setAttribute('aria-expanded','false');
+  syncInstitutionToggle();
   institutionFilter.hidden=!offices.some(office=>office.region===name && !office.schoolType);
   for(const office of offices.filter(office=>!office.schoolType)){
     institutionInputs.get(office.name).parentElement.hidden=office.region!==name;

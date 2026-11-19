@@ -73,11 +73,19 @@
 @media(max-width:380px) { .controls { right: 8px; gap: 4px; } .controls #fit { padding: 0 8px; } .scale { bottom: 70px; } }
 
 
-.school-filter { top:28px; left:146px; right:auto; display:block; padding:0; }
-#institution-filter { margin-top:51px; }
-#school-filter:has(#school-toggle[aria-expanded="true"]) + #institution-filter { margin-top:104px; }
+/* Region name, region info, school filter and institution toggle form an aligned 2x2 block. */
+#panel:not(.open):has(#region-info:not([hidden])) { width:116px; }
+#panel .mobile-selector { min-height:44px; }
+.school-filter { top:28px; left:150px; right:auto; display:block; width:116px; padding:0; border-radius:15px; box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907; }
+#institution-filter { margin-top:45px; }
+#school-filter[hidden] + #institution-filter { margin-top:0; }
+#school-filter:not([hidden]):has(+ #institution-filter:not([hidden])) { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+#school-filter:not([hidden]) + #institution-filter { border-top-left-radius:0; border-top-right-radius:0; }
+#institution-filter #institution-options { display:none; }
 .school-filter[hidden], :is(#school-toggle,#institution-toggle)[aria-expanded="false"] + :is(#school-options,#institution-options) { display:none; }
-:is(#school-toggle,#institution-toggle) { display:flex; align-items:center; gap:5px; height:44px; padding:0 10px; font-size:13px; font-weight:650; }
+:is(#school-toggle,#institution-toggle) { display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%; height:44px; padding:0 12px; font-size:13px; font-weight:650; border-radius:inherit; }
+#institution-toggle { justify-content:center; }
+#institution-toggle[aria-pressed="true"] { background:var(--pine); color:white; }
 :is(#school-toggle,#institution-toggle) svg { width:15px; height:15px; }
 :is(#school-options,#institution-options) { position:absolute; z-index:1; top:calc(100% + 5px); left:0; display:flex; width:max-content; max-width:calc(100vw - 20px); overflow-x:auto; padding:2px; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
 :is(#school-options,#institution-options) label { display:flex; align-items:center; min-height:44px; padding:0 4px; gap:3px; flex:none; }
@@ -89,8 +97,8 @@
 .map-mode:not(.school-filter) span { min-width:0; min-height:30px; font-size:12px; border:1px solid var(--line); }
 .map-mode:not(.school-filter) input:not(:checked)+span { background:var(--paper); }
 @media(max-width:720px),(max-height:540px){
- .school-filter { top:16px; left:128px; }
- :is(#school-options,#institution-options) { left:-119px; }
+ .school-filter { top:16px; left:137px; border-radius:10px; }
+ #school-options { left:-123px; }
  .map-mode:not(.school-filter) { right:10px; }
 }
 .office-marker b { white-space: nowrap; }
@@ -193,3 +201,19 @@
 .assembly-note { margin:12px 0; padding:12px; border-radius:8px; background:#edf3e8; }
 .assembly-note p { margin:6px 0; }
 .assembly-note button { min-height:36px; padding:0; color:#295a45; text-decoration:underline; }
+/* Slim header so the map gets more height. */
+header { height:52px; padding:0 24px; }
+.logo { width:32px; height:32px; }
+.brand { gap:10px; }
+.brand strong { font-size:18px; }
+.brand span { margin-top:1px; font-size:8px; }
+.info { padding:6px 11px; }
+@media(max-width:720px),(max-height:540px){
+  header { height:48px; padding:0 14px; }
+  .logo { width:28px; height:28px; }
+  .brand { gap:8px; }
+  .brand strong { font-size:17px; }
+  .brand span { display:none; }
+  .info { padding:6px 9px; }
+}
+@media(max-width:375px) { header { padding-inline:9px; } }
