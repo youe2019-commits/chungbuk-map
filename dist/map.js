@@ -168,7 +168,7 @@ const offices = [
    address:'진천군 덕산읍 대하로 47', description:'보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/seojeon-h/'},
   {name:'진천고등학교', region:'진천군', schoolType:schoolTypes.publicHigh, short:'진천고', kind:'공립 고등학교', icon:'book', lat:36.8539549, lon:127.4499542,
    address:'진천군 진천읍 문화12길 48', description:'보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/jcg-h/'},
-  {name:'진천상업고등학교', region:'진천군', schoolType:schoolTypes.publicHigh, short:'진천상업고', kind:'공립 고등학교', icon:'book', lat:36.84776396, lon:127.443637,
+  {name:'진천상업고등학교', specializedHigh:true, region:'진천군', schoolType:schoolTypes.publicHigh, short:'진천상업고', kind:'공립 고등학교', icon:'book', lat:36.84776396, lon:127.443637,
    address:'진천군 진천읍 문화3길 25', description:'회계와 사무 등 상업 분야의 실무를 배우며 취업과 진학을 준비합니다.', url:'https://school.cbe.go.kr/jcch-h/'},
   {name:'충북체육고등학교', region:'진천군', schoolType:schoolTypes.publicHigh, short:'충북체육고', kind:'공립 고등학교', icon:'book', lat:36.76308637, lon:127.4347297,
    address:'진천군 문백면 도하3길 120', description:'보통교과와 종목별 전문 훈련을 병행하며 체육 분야의 진로를 준비합니다.', url:'https://school.cbe.go.kr/cbp-h/'},
@@ -204,7 +204,7 @@ const offices = [
    address:'보은군 회인면 회인로 73', description:'보은군 회인면에 있는 공립 중학교입니다.', url:'https://school.cbe.go.kr/hoein-m/'},
   {name:'보은여자고등학교', region:'보은군', schoolType:schoolTypes.publicHigh, short:'보은여고', kind:'공립 고등학교', icon:'book', lat:36.4942004, lon:127.7158663,
    address:'보은군 보은읍 보은로 223', description:'보은군 보은읍에 있는 공립 고등학교입니다. 국어·수학·영어 등 보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/boeung-h/'},
-  {name:'충북생명산업고등학교', region:'보은군', schoolType:schoolTypes.publicHigh, short:'충북생명산업고', kind:'공립 고등학교', icon:'book', lat:36.4921467, lon:127.7164429,
+  {name:'충북생명산업고등학교', specializedHigh:true, region:'보은군', schoolType:schoolTypes.publicHigh, short:'충북생명산업고', kind:'공립 고등학교', icon:'book', lat:36.4921467, lon:127.7164429,
    address:'보은군 보은읍 자영고길 10', description:'스마트팜에서 작물 재배와 환경 제어를 실습하고 농산물 유통·경영을 배워 농업 창업을 준비합니다.', url:'https://school.cbe.go.kr/cbb-h/'},
   {name:'보은고등학교', region:'보은군', schoolType:schoolTypes.privateHigh, short:'보은고', kind:'사립 고등학교', icon:'book', lat:36.4750884, lon:127.7211248,
    address:'보은군 보은읍 보은로 17', description:'보은군 보은읍에 있는 사립 고등학교입니다. 국어·수학·영어 등 보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/boeun-h/'},
@@ -273,23 +273,23 @@ const offices = [
    address:'청주시 흥덕구 강내면 태성탑연로 250', description:'흥덕구에 있는 국립 일반고등학교입니다.', url:'https://school.cbe.go.kr/ahsknue-h/'},
   {name:'흥덕고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'흥덕고', kind:'공립 고등학교', icon:'book', lat:36.63686278, lon:127.4239538,
    address:'청주시 흥덕구 증안로 9', description:'흥덕구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/hds-h/'},
-  {name:'청주공업고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주공고', kind:'공립고', icon:'book', lat:36.6383598, lon:127.4856352,
+  {name:'청주공업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주공고', kind:'공립고', icon:'book', lat:36.6383598, lon:127.4856352,
    address:'청주시 상당구 교서로 17', description:'전자회로와 반도체 기초, 프로그래밍 등을 배우며 공업 기술 분야의 진로를 준비합니다.', url:'https://school.cbe.go.kr/ck-h/'},
-  {name:'청주농업고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주농고', kind:'공립고', icon:'book', lat:36.6600712, lon:127.4842284,
+  {name:'청주농업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주농고', kind:'공립고', icon:'book', lat:36.6600712, lon:127.4842284,
    address:'청주시 청원구 내덕로 45', description:'도시농업과 농업토목 등에서 화훼, 농업기계 운전 같은 기술을 배우며 농업 분야 진로를 준비합니다.', url:'https://school.cbe.go.kr/cjagh-h/'},
-  {name:'충북공업고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북공고', kind:'공립고', icon:'book', lat:36.6126871, lon:127.4309739,
+  {name:'충북공업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북공고', kind:'공립고', icon:'book', lat:36.6126871, lon:127.4309739,
    address:'청주시 흥덕구 서부로1205번길 52', description:'기계·전기·전자를 함께 배우고 생산자동화설비, 금형, 정밀기계 등의 실습으로 제조 현장에 필요한 기술을 익힙니다.', url:'https://school.cbe.go.kr/cbt-h/'},
-  {name:'청주하이텍고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주하이텍고', kind:'공립고', icon:'book', lat:36.609161, lon:127.4923736,
+  {name:'청주하이텍고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주하이텍고', kind:'공립고', icon:'book', lat:36.609161, lon:127.4923736,
    address:'청주시 서원구 1순환로1137번길 59', description:'자동화 장비를 제어하고 전기·전자 회로를 다루는 실습으로 생산설비 분야의 기술을 익힙니다.', url:'https://school.cbe.go.kr/cjh-h/'},
-  {name:'충북상업정보고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북상업정보고', kind:'공립고', icon:'book', lat:36.6637875, lon:127.4787784,
+  {name:'충북상업정보고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북상업정보고', kind:'공립고', icon:'book', lat:36.6637875, lon:127.4787784,
    address:'청주시 청원구 율천북로 73', description:'광고·마케팅, 물류, 관광 서비스 등을 배우며 상업과 서비스 분야의 취업·창업을 준비합니다.', url:'https://school.cbe.go.kr/cbci-h/'},
-  {name:'청주IT과학고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주IT과학고', kind:'사립고', icon:'book', lat:36.521889, lon:127.436617,
+  {name:'청주IT과학고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주IT과학고', kind:'사립고', icon:'book', lat:36.521889, lon:127.436617,
    address:'청주시 서원구 현도면 죽암도원로 34-13', description:'소프트웨어 개발, 인공지능 프로그래밍, 컴퓨터 디자인을 배우며 IT 분야의 진로를 준비합니다.', url:'https://school.cbe.go.kr/cjits-h/'},
-  {name:'청주여자상업고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주여상고', kind:'사립고', icon:'book', lat:36.625861, lon:127.483889,
+  {name:'청주여자상업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주여상고', kind:'사립고', icon:'book', lat:36.625861, lon:127.483889,
    address:'청주시 서원구 무심서로 377-1', description:'경영회계, 콘텐츠 디자인, 외식 조리를 배우며 각 분야의 실무와 진로를 탐색합니다.', url:'https://school.cbe.go.kr/croba-h/'},
-  {name:'대성여자상업고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'대성여상고', kind:'사립고', icon:'book', lat:36.6451545, lon:127.4922457,
+  {name:'대성여자상업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.privateHigh, short:'대성여상고', kind:'사립고', icon:'book', lat:36.6451545, lon:127.4922457,
    address:'청주시 상당구 대성로 220', description:'회계와 세무, 문서 작성과 정보처리 등을 익혀 기업과 금융기관의 사무 업무를 준비합니다.', url:'https://school.cbe.go.kr/cds-h/'},
-  {name:'양업고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'양업고', kind:'사립고', icon:'book', lat:36.671027, lon:127.3473567,
+  {name:'양업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.privateHigh, short:'양업고', kind:'사립고', icon:'book', lat:36.671027, lon:127.3473567,
    address:'청주시 흥덕구 옥산면 환희길 277', description:'가톨릭 대안교육을 바탕으로 보통교과와 체험 중심 활동을 함께 배우며 자율성과 공동체 생활 역량을 기릅니다.', url:'https://www.yangeob.hs.kr/'},
   {name:'충청북도청', region:'청주시', short:'도청', kind:'도 행정', icon:'civic', color:'#36634f', lat:36.6356178, lon:127.4906769,
    address:'청주시 상당구 상당로 82', description:'도지사가 이끄는 도청은 복지·교통·환경 등 도민의 생활에 필요한 사업을 집행합니다. 예를 들어 홍수에 대비해 지방하천의 제방을 보강하려면, 도지사가 공사비를 예산안에 담아 도의회에 제출합니다. 도의회가 예산을 의결하면 도청은 그 범위에서 공사를 추진합니다.', url:'https://www.chungbuk.go.kr/'},
@@ -360,7 +360,8 @@ $('region-info').onclick=()=>{
 function showOffice(office){
   const card=$('office-card');
   card.style.setProperty('--office-color',markerColor(office));
-  $('office-kind').textContent=office.kind;
+  card.classList.toggle('specialized-high',Boolean(office.specializedHigh));
+  $('office-kind').textContent=office.specializedHigh?office.kind+' · 특성화고':office.kind;
   $('office-title').textContent=office.name;
   $('office-icon').setAttribute('href','#ic-'+office.icon);
   $('office-description').textContent=office.description;
@@ -394,7 +395,8 @@ const officeMarkers=offices.map(office=>{
   button.className='office-marker';
   if(office.schoolType){
     button.classList.add('school-marker');
-    button.setAttribute('aria-description',office.kind);
+    button.classList.toggle('specialized-high',Boolean(office.specializedHigh));
+    button.setAttribute('aria-description',office.specializedHigh?office.kind+' · 특성화고':office.kind);
   }
   button.setAttribute('aria-label',office.name+' 설명 보기');
   button.setAttribute('aria-haspopup','dialog');
@@ -568,7 +570,8 @@ function layoutSchools(cards){
     floor=rowY;
     nextFree[column]=rowY+pitch;
     const name=marker.office.short;
-    const width=Math.min(maxWidth,Math.max(44,name.length*13+(marker.office.schoolType?8:32)));
+    const padding=marker.office.schoolType?8:32;
+    const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specializedHigh?8:0)));
     const cardX=column===0?left:right-width;
     const cardEdge=cardX+(column===0?width:0);
     const elbow=cardEdge+(column===0?1:-1)*Math.min(40,Math.max(14,(right-left)*.055));
