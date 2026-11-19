@@ -373,3 +373,10 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 #office-org .org-grid li strong { font-size:13.5px; }
 #office-org .org-grid li span { font-size:12px; line-height:1.45; }
 #office-description { white-space:pre-line; }
+/* 국회 card. */
+.autonomy-row.two { grid-template-columns:repeat(2,1fr); }
+#assembly-org .autonomy-row div.current { border:2px solid var(--pine); background:#e7f0e9; }
+#assembly-org .org-title { margin:16px 0 0; font-size:15px; }
+#assembly-org .org-grid li strong { font-size:13px; }
+#assembly-org .org-grid li span { font-size:12px; line-height:1.45; }
+@media(max-width:400px){ .nation-actions .lesson-open { padding:4px 8px; } }
