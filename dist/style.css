@@ -61,7 +61,9 @@
 .controls .zoom button { border: 0; }
 #zoom-range { width: clamp(58px,8vw,112px); height: 44px; margin: 0 1px; accent-color: var(--pine); cursor: pointer; touch-action: none; }
 #zoom-range:focus-visible { outline: 2px solid #4877ac; outline-offset: -2px; border-radius: 6px; }
-.controls #fit { width:44px; height:44px; padding:0; font-size:20px; }
+.view-switch { display:flex; height:44px; padding:3px; gap:2px; border-radius:10px; background:var(--paper); border:1px solid #d7ded0; box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907; }
+.controls .view-switch button { width:auto; height:auto; padding:0 12px; border-radius:7px; font-size:13px; font-weight:650; color:#405046; }
+.controls .view-switch button[aria-pressed="true"] { background:var(--pine); color:white; }
 @media(max-width:380px) { .controls { right: 8px; gap: 4px; } .scale { bottom: 70px; } }
 
 
@@ -172,7 +174,8 @@
 #ministry-card article a { font-size:14px; color:#35596b; }
 
 .lesson-open { min-height:42px; padding:6px 12px; border:1px solid #aabdab; border-radius:9px; background:#f8fbf5; color:#275641; font-weight:650; }
-#nation-view > .lesson-open { position:absolute; z-index:1; left:96px; top:5px; }
+.nation-actions { position:absolute; z-index:1; left:96px; top:10px; display:flex; gap:6px; }
+.nation-actions .lesson-open { min-height:32px; padding:4px 10px; font-size:13px; border-radius:8px; }
 #relocation-lesson { width:480px; max-width:calc(100vw - 20px); padding:18px; }
 #lesson-close { min-width:44px; min-height:44px; font-size:14px; }
 .lesson-steps { display:flex; gap:4px; margin:10px 0; }
@@ -194,9 +197,6 @@
 .lesson-sources { font-size:13px; }
 .lesson-sources a { display:block; padding:4px 0; }
 
-.assembly-note { margin:12px 0; padding:12px; border-radius:8px; background:#edf3e8; }
-.assembly-note p { margin:6px 0; }
-.assembly-note button { min-height:36px; padding:0; color:#295a45; text-decoration:underline; }
 /* Slim header so the map gets more height. */
 header { height:52px; padding:0 24px; }
 .logo { width:32px; height:32px; }
@@ -213,3 +213,29 @@ header { height:52px; padding:0 24px; }
   .info { padding:6px 9px; }
 }
 @media(max-width:375px) { header { padding-inline:9px; } }
+
+/* In the national view only the 충북/전국 switch stays from the map controls. */
+.field.national > .controls:not(#nation-view) { visibility:visible; z-index:2; }
+.field.national > .controls .zoom { display:none; }
+/* Ministry detail button and organisation charts. */
+#ministry-card .detail-open { margin-top:2px; min-height:34px; padding:4px 11px; border:1px solid #aabdab; border-radius:8px; background:#f8fbf5; color:#275641; font-size:13px; font-weight:650; }
+.org-dialog { width:440px; }
+.org-dialog .modal-title button { min-width:44px; min-height:44px; font-size:14px; }
+.org-chart { display:grid; justify-items:center; gap:10px; margin:12px 0; }
+.org-node { position:relative; min-width:150px; padding:8px 14px; border-radius:9px; background:var(--pine); color:white; text-align:center; font-weight:700; }
+.org-node small { display:block; margin-top:2px; font-size:11px; font-weight:500; opacity:.85; }
+.org-node + .org-node::before, .org-node + .org-legend + .org-units::before, .org-node + .org-units::before { content:""; position:absolute; left:50%; top:-11px; height:10px; border-left:2px solid #9fb3a4; }
+.org-units { position:relative; width:100%; margin:0; padding:10px 0 0; list-style:none; display:grid; gap:6px; border-top:2px solid #9fb3a4; }
+.org-units li { padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#f8fbf5; }
+.org-units strong { display:block; font-size:14px; }
+.org-units span { display:block; margin-top:2px; font-size:12px; color:#5b6a60; line-height:1.45; }
+.org-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.org-grid li { border-left:4px solid #6f9a7d; }
+.org-grid li.org-seoul { border-left-color:#607a91; }
+.org-grid li.org-busan { border-left-color:#b27a3a; }
+.org-legend { display:flex; gap:12px; margin:0; font-size:12px; color:#5b6a60; }
+.org-legend span::before { content:""; display:inline-block; width:10px; height:10px; margin-right:4px; border-radius:2px; vertical-align:-1px; background:#6f9a7d; }
+.org-legend .org-seoul::before { background:#607a91; }
+.org-legend .org-busan::before { background:#b27a3a; }
+@media(max-width:520px){ .org-dialog { width:calc(100vw - 24px); } }
+@media(max-width:400px){ .nation-actions { left:14px; top:44px; } }

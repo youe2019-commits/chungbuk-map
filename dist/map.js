@@ -718,8 +718,8 @@ function setNational(active){
   field.classList.toggle('national',active);
   field.setAttribute('aria-label',active?'전국 지도 탐색':'충청북도 지도 탐색');
   $('nation-view').hidden=!active;
-  $('nation-toggle').hidden=Boolean(selected);
-  $('nation-toggle').textContent=active?'충북 전체 보기':'전국 지도 보기';
+  $('fit').setAttribute('aria-pressed',String(!active));
+  $('nation-toggle').setAttribute('aria-pressed',String(active));
   document.querySelector('.brand strong').textContent=active?'전국 지도':'충북 지도';
   if(active)document.querySelector('.nation-scroll').scrollTop=0;
 }
@@ -783,16 +783,22 @@ $('nation-chungbuk').addEventListener('click', event=>{
   event.preventDefault();
   history.back();
 });
+// 충북 / 전국 buttons next to the zoom bar switch between the two maps.
 $('nation-toggle').onclick=()=>{
-  if(selected) return;
-  if(!$('nation-view').hidden){
-    history.back();
-    return;
-  }
+  if(!$('nation-view').hidden) return;
   history.replaceState(entryState(),'');
+  if(selected) renderSelection('');
   setNational(true);
   history.pushState(entryState(),'');
 };
+// Organisation charts open on top of whatever is showing and close by themselves.
+for(const button of document.querySelectorAll('[data-org-open]')){
+  button.onclick=()=>{
+    const dialog=$(button.dataset.orgOpen);
+    dialog.showModal();
+    dialog.scrollTop=0;
+  };
+}
 
 function entryState(){
   return {...history.state,chungbukMap:{national:!$('nation-view').hidden,region:selected,center:[...center],zoom:z,types:typeInputs.filter(input=>input.checked).map(input=>input.value)}};
@@ -839,7 +845,12 @@ function zoom(factor,p=origin,q=p){
   center[1]+=(p[1]-origin[1])/(base*old)-(q[1]-origin[1])/(base*z);draw();
 }
 $('zoom-range').oninput=e=>zoom(Number(e.target.value)/z);
-$('fit').onclick=()=>choose('');$('plus').onclick=()=>zoom(1.45);$('minus').onclick=()=>zoom(1/1.45);
+$('fit').onclick=()=>{
+  if($('nation-view').hidden){choose('');return}
+  history.replaceState(entryState(),'');
+  renderSelection('');
+  history.pushState(entryState(),'');
+};$('plus').onclick=()=>zoom(1.45);$('minus').onclick=()=>zoom(1/1.45);
 // Track the SVG and the overlaid label buttons as a single gesture surface.
 const gestureArea=$('area');
 const touches=new Map();
