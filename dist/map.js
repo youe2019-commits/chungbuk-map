@@ -115,6 +115,16 @@ function toggleGu(name){
   updateFilters();
 }
 let selected='',z=1,base=1,origin=[0,0],center=[W/2,H/2],vw=0,vh=0;
+// The map can zoom out until all of South Korea (the grey provinces) fits on screen.
+const nationBounds=(()=>{
+  let x0=0,y0=0,x1=W,y1=H;
+  for(const {path} of neighbourData){
+    const n=path.match(/-?\d+(?:\.\d+)?/g)?.map(Number)||[];
+    for(let i=0;i+1<n.length;i+=2){x0=Math.min(x0,n[i]);x1=Math.max(x1,n[i]);y0=Math.min(y0,n[i+1]);y1=Math.max(y1,n[i+1])}
+  }
+  return [x0,y0,x1,y1];
+})();
+let zMin=1;
 const compact=matchMedia('(max-width:720px), (max-height:540px)');
 // Anchors use the same Web Mercator extent as the administrative boundary paths.
 const schoolTypes={
@@ -733,11 +743,19 @@ function dimensions(){
   }
   origin=[left+(vw-left-right)/2,top+(vh-top-bottom)/2];
   base=Math.max(.01,Math.min((vw-left-right)/W,(vh-top-bottom)/H)*.995);
+  const [nx0,ny0,nx1,ny1]=nationBounds;
+  zMin=Math.min(1,Math.min((vw-left-right)/(nx1-nx0),(vh-top-bottom)/(ny1-ny0))/base);
+  $('zoom-range').min=zMin.toFixed(3);
 }
 function draw(){
   const k=base*z;
   // Keep part of the mapped province within reach even after a long drag.
-  center=[Math.min(W+origin[0]/k-50,Math.max(-(vw-origin[0])/k+50,center[0])),Math.min(H+origin[1]/k-50,Math.max(-(vh-origin[1])/k+50,center[1]))];
+  const [bx0,by0,bx1,by1]=nationBounds;
+  // When the whole country fits along an axis, centre it on that axis.
+  const fitsX=(bx1-bx0)*k<=vw-12, fitsY=(by1-by0)*k<=vh-12;
+  if(fitsX) center[0]=(bx0+bx1)/2+(origin[0]-vw/2)/k;
+  if(fitsY) center[1]=(by0+by1)/2+(origin[1]-vh/2)/k;
+  center=[Math.min(bx1+origin[0]/k-50,Math.max(bx0-(vw-origin[0])/k+50,center[0])),Math.min(by1+origin[1]/k-50,Math.max(by0-(vh-origin[1])/k+50,center[1]))];
   world.setAttribute('transform',`translate(${origin[0]} ${origin[1]}) scale(${k}) translate(${-center[0]} ${-center[1]})`);
   const overviewSize=Math.min(20,Math.max(compact.matches?11:12,19*base));
   const size=Math.min(24,overviewSize+3*Math.log2(z));
@@ -751,7 +769,7 @@ function draw(){
   });
   const guSize=Math.min(17,12+2*Math.log2(z));
   for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
-  for(const text of neighbourLabels){text.style.fontSize=(Math.min(15,11+2*Math.log2(z))/k)+'px';text.style.strokeWidth=(2.4/k)+'px'}
+  for(const text of neighbourLabels){text.style.fontSize=(Math.max(10,Math.min(15,11+2*Math.log2(z)))/k)+'px';text.style.strokeWidth=(2.4/k)+'px'}
   $('zoom-range').value=z;
   $('zoom-range').setAttribute('aria-valuetext',Number(z.toFixed(2))+'배');
   if(annotationView){
@@ -764,7 +782,7 @@ function draw(){
   }
   const unit=[.2,.5,1,2,5,10,20,50,100].filter(v=>v*km*k<85).pop()||.1;
   $('scale-text').textContent=unit<1?(unit*1000)+' m':unit+' km';$('scale-line').style.width=(unit*km*k)+'px';
-  $('minus').disabled=z<=1.0001;$('plus').disabled=z>=7.999;
+  $('minus').disabled=z<=zMin+.0001;$('plus').disabled=z>=7.999;
 }
 function fittedZoom([[l,t],[r,b]]){
   const fitFraction=selected==='청주시' ? 0.68 : 0.78;
@@ -921,7 +939,7 @@ function restoreEntry(state){
   const view=state?.chungbukMap;
   if(view && (view.region==='' || paths.has(view.region)) &&
      Array.isArray(view.center) && view.center.length===2 && view.center.every(Number.isFinite) &&
-     Number.isFinite(view.zoom) && view.zoom>=1 && view.zoom<=8){
+     Number.isFinite(view.zoom) && view.zoom>=zMin-.001 && view.zoom<=8){
     renderSelection(view.region,view);
     if(!view.region && view.national){
       setNational(true);
@@ -941,7 +959,7 @@ window.addEventListener('popstate',event=>{
   restoreEntry(event.state);
 });
 function zoom(factor,p=origin,q=p){
-  const old=z;z=Math.min(8,Math.max(1,z*factor));
+  const old=z;z=Math.min(8,Math.max(zMin,z*factor));
   center[0]+=(p[0]-origin[0])/(base*old)-(q[0]-origin[0])/(base*z);
   center[1]+=(p[1]-origin[1])/(base*old)-(q[1]-origin[1])/(base*z);draw();
 }
