@@ -690,7 +690,16 @@ function layoutRegionCards(){
 
 function dimensions(){
   const r=map.getBoundingClientRect();vw=r.width;vh=r.height;
-  const left=compact.matches?6:55,right=compact.matches?6:55,top=compact.matches?63:12,bottom=compact.matches?31:14;
+  let left=compact.matches?6:55,right=compact.matches?6:55,top=compact.matches?63:12,bottom=compact.matches?31:14;
+  // Portrait phones: fit the map between the top buttons and the bottom controls, centred in that gap.
+  if(compact.matches && vh>vw){
+    const mode=document.querySelector('.map-mode:not(.school-filter)').getBoundingClientRect();
+    const controls=document.querySelector('.controls').getBoundingClientRect();
+    if(mode.height && controls.height){
+      top=Math.max(top,mode.bottom-r.top+10);
+      bottom=Math.max(bottom,r.bottom-controls.top+10);
+    }
+  }
   origin=[left+(vw-left-right)/2,top+(vh-top-bottom)/2];
   base=Math.max(.01,Math.min((vw-left-right)/W,(vh-top-bottom)/H)*.995);
 }
