@@ -319,3 +319,7 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
   #school-options #show-school-list { padding:0 6px; font-size:13px; }
 }
 @media(max-width:720px){ #school-options { width:max-content; max-width:calc(100vw - 30px); } }
+/* Ministry descriptions in the government chart. */
+.org-grid details { height:100%; }
+.org-grid .org-desc { margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#36503f; text-wrap:pretty; }
+.org-grid details[open] { grid-column:auto; }

@@ -377,6 +377,22 @@ const offices = [
   {name:'한일중학교', region:'음성군', schoolType:schoolTypes.privateMiddle, short:'한일중', kind:'사립 중학교', icon:'book', lat:36.9353714, lon:127.6858972,
    address:'음성군 음성읍 예술로 34', description:'음성군 음성읍에 있는 사립 중학교입니다.', url:'https://school.cbe.go.kr/hanil-m/'}
 ];
+// Schools other than general high schools get the red star and a type label.
+const specialSchools={
+  '충북과학고등학교':'특목고 · 과학고','충북외국어고등학교':'특목고 · 외국어고',
+  '충북예술고등학교':'특목고 · 예술고','충북체육고등학교':'특목고 · 체육고',
+  '충북반도체고등학교':'마이스터고','충북에너지고등학교':'마이스터고','한국바이오마이스터고등학교':'마이스터고',
+  '단재고등학교':'대안학교','은여울고등학교':'대안학교',
+  '청주고등학교부설방송통신고등학교':'방송통신고','충북온라인학교':'온라인학교'
+};
+for(const office of offices){
+  const byKind=office.schoolType?.level==='high' && office.kind.match(/대안학교|마이스터고|방송통신고|온라인학교/)?.[0];
+  const label=office.specializedHigh?'특성화고':specialSchools[office.name]||byKind;
+  if(!label) continue;
+  office.specialLabel=label;
+  // Do not repeat a type the kind already names (e.g. '공립 마이스터고').
+  office.kindText=office.kind.includes(label.split(' · ').pop())?office.kind:office.kind+' · '+label;
+}
 function projectOffice({lat,lon}){
   const radius=6378137, radians=Math.PI/180, units=900/(4475176.648049062-4302331.855694858);
   return [(radius*lon*radians-14168260.57948982)*units,
@@ -410,8 +426,8 @@ $('region-info').onclick=()=>{
 function showOffice(office){
   const card=$('office-card');
   card.style.setProperty('--office-color',markerColor(office));
-  card.classList.toggle('specialized-high',Boolean(office.specializedHigh));
-  $('office-kind').textContent=office.specializedHigh?office.kind+' · 특성화고':office.kind;
+  card.classList.toggle('specialized-high',Boolean(office.specialLabel));
+  $('office-kind').textContent=office.kindText||office.kind;
   $('office-title').textContent=office.name;
   $('office-icon').setAttribute('href','#ic-'+office.icon);
   $('office-description').textContent=office.description;
@@ -445,8 +461,8 @@ const officeMarkers=offices.map(office=>{
   button.className='office-marker';
   if(office.schoolType){
     button.classList.add('school-marker');
-    button.classList.toggle('specialized-high',Boolean(office.specializedHigh));
-    button.setAttribute('aria-description',office.specializedHigh?office.kind+' · 특성화고':office.kind);
+    button.classList.toggle('specialized-high',Boolean(office.specialLabel));
+    button.setAttribute('aria-description',office.kindText||office.kind);
   }
   button.setAttribute('aria-label',office.name+' 설명 보기');
   button.setAttribute('aria-haspopup','dialog');
@@ -600,7 +616,7 @@ function layoutSchools(cards){
     nextFree[column]=rowY+pitch;
     const name=marker.office.short;
     const padding=marker.office.schoolType?8:32;
-    const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specializedHigh?8:0)));
+    const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specialLabel?8:0)));
     const cardX=column===0?left:right-width;
     const cardEdge=cardX+(column===0?width:0);
     const elbow=cardEdge+(column===0?1:-1)*Math.min(40,Math.max(14,(right-left)*.055));
