@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f7f8f3"><title>충북 지도 · 충청북도 행정지도</title><link rel="stylesheet" href="style.css?v=20261120-0020"><script defer src="geometry.js?v=20261120-0020"></script><script defer src="water.js?v=20261120-0020"></script><script defer src="neighbours.js?v=20261120-0020"></script><script defer src="cheongju-gu.js?v=20261120-0020"></script><script defer src="statistics.js?v=20261120-0020"></script><script defer src="map.js?v=20261120-0020"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f7f8f3"><title>충북 지도 · 충청북도 행정지도</title><link rel="stylesheet" href="style.css?v=20261120-0045"><script defer src="geometry.js?v=20261120-0045"></script><script defer src="water.js?v=20261120-0045"></script><script defer src="neighbours.js?v=20261120-0045"></script><script defer src="cheongju-gu.js?v=20261120-0045"></script><script defer src="statistics.js?v=20261120-0045"></script><script defer src="map.js?v=20261120-0045"></script></head>
 <body>
 <svg class="defs" aria-hidden="true"><defs>
 <symbol id="ic-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -17,6 +17,7 @@
 </div></header>
 <main class="field" aria-label="충청북도 지도 탐색">
 <div class="map-area" id="area"><svg id="map" role="group" aria-label="충청북도 11개 시·군 지도" tabindex="0"><defs><clipPath id="province"></clipPath></defs><g id="world"><g id="basemap"><g id="land"></g></g><g id="districts"></g><g id="labels" pointer-events="none"></g></g><g id="office-lines" pointer-events="none" aria-hidden="true"><g id="connectors"></g></g></svg><div id="office-markers" role="group" aria-label="선택한 지역의 학교와 기관"></div></div>
+<button type="button" id="compare-open" aria-haspopup="dialog">지역 비교</button>
 <aside id="panel" hidden>
 <div class="panel-row"><button type="button" id="home-button" title="충북 전체 보기" aria-label="충북 전체 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5M6.5 10v9h11v-9"/></svg></button><button type="button" id="region-info" hidden aria-haspopup="dialog"><span class="long">지역 정보 보기</span><span class="short">지역 정보</span></button></div>
 <div id="card-pages" role="group" aria-label="지도 카드 페이지" hidden>
@@ -170,6 +171,47 @@
       </ul></section>
   </div>
   <p class="stat-links">자료 <a href="https://www.korea.kr/etc/ministry.do" target="_blank" rel="noopener">대한민국 정책브리핑 정부기관</a></p>
+</dialog>
+<dialog id="compare-dialog" aria-labelledby="compare-title">
+  <div class="modal-title"><h2 id="compare-title">지역 비교</h2><form method="dialog"><button aria-label="지역 비교 닫기">닫기</button></form></div>
+  <div class="compare-tabs" role="group" aria-label="비교할 지역">
+    <button type="button" data-compare="cheongju" aria-pressed="true">청주 ↔ 그 밖의 충북</button>
+    <button type="button" data-compare="capital" aria-pressed="false">수도권 ↔ 충북</button>
+  </div>
+  <section data-compare-panel="cheongju">
+    <p class="compare-lead">도청이 있는 도시 청주와, 나머지 <span class="nowrap">10개 시·군</span>을 견주어 봅니다. 도시와 촌락의 모습이 어떻게 다를까요?</p>
+    <div class="compare-item">
+      <h3>인구</h3>
+      <div class="bar-row"><span>청주</span><i style="--w:100%"></i><b>86만 1,711명</b></div>
+      <div class="bar-row other"><span>그 밖의 충북</span><i style="--w:86%"></i><b>74만 671명</b></div>
+      <p class="compare-note">충북 사람 100명 중 54명이 청주에 삽니다.</p>
+      <p class="compare-q">충북 인구의 절반 넘게 청주 한 곳에 모여 사는 까닭은 무엇일까요?</p>
+    </div>
+    <div class="compare-item">
+      <h3>인구밀도 <small>1km²에 사는 사람 수</small></h3>
+      <div class="bar-row"><span>청주</span><i style="--w:100%"></i><b>916명</b></div>
+      <div class="bar-row other"><span>그 밖의 충북</span><i style="--w:12.4%"></i><b>114명</b></div>
+      <p class="compare-note">그 밖의 충북은 청주보다 땅이 약 7배 넓지만, 사는 사람은 더 적습니다.</p>
+      <p class="compare-q">사람이 모여 사는 곳과 흩어져 사는 곳은 생활 모습이 어떻게 다를까요?</p>
+    </div>
+    <div class="compare-item">
+      <h3>고령 인구 비율 <small>65세 이상</small></h3>
+      <div class="bar-row"><span>청주</span><i style="--w:62%"></i><b>18.7%</b></div>
+      <div class="bar-row other"><span>그 밖의 충북</span><i style="--w:100%"></i><b>약 30.2%</b></div>
+      <p class="compare-note">그 밖의 충북은 열 명 중 세 명이 65세 이상입니다.</p>
+      <p class="compare-q">촌락에 노인 인구의 비율이 높은 까닭은 무엇일까요?</p>
+    </div>
+    <div class="compare-item">
+      <h3>유소년 인구 비율 <small>0~14세</small></h3>
+      <div class="bar-row"><span>청주</span><i style="--w:100%"></i><b>11.5%</b></div>
+      <div class="bar-row other"><span>그 밖의 충북</span><i style="--w:74%"></i><b>약 8.5%</b></div>
+      <p class="compare-q">어린이가 적은 지역에서는 학교와 마을에 어떤 변화가 생길까요?</p>
+    </div>
+    <p class="stat-links">자료 행정안전부 주민등록 인구통계(2026년 10월 말), <a href="https://k-calc.com/region/Chungcheongbuk-do" target="_blank" rel="noopener">지역별 정리</a> · 면적은 행정구역 경계(V-World)로 계산 · '약'은 충북 전체에서 청주를 빼서 계산한 값</p>
+  </section>
+  <section data-compare-panel="capital" hidden>
+    <p class="compare-lead">준비 중입니다.</p>
+  </section>
 </dialog>
 <dialog id="region-dialog" aria-labelledby="region-title">
   <div class="modal-title"><h2 id="region-title"></h2><form method="dialog"><button aria-label="지역 정보 닫기">닫기</button></form></div>

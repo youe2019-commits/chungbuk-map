@@ -437,6 +437,14 @@ function showNumbers(id, entries){
   }
 }
 $('home-button').onclick=()=>choose('');
+// Region comparison: 청주 ↔ 그 밖의 충북, 수도권 ↔ 충북.
+$('compare-open').onclick=()=>{$('compare-dialog').showModal();$('compare-dialog').scrollTop=0};
+for(const tab of document.querySelectorAll('[data-compare]')){
+  tab.onclick=()=>{
+    for(const other of document.querySelectorAll('[data-compare]')) other.setAttribute('aria-pressed',String(other===tab));
+    for(const panel of document.querySelectorAll('[data-compare-panel]')) panel.hidden=panel.dataset.comparePanel!==tab.dataset.compare;
+  };
+}
 $('region-info').onclick=()=>{
   const data=regionStatistics[selected];
   if(!data)return;
@@ -811,6 +819,7 @@ function renderSelection(name,view){
   $('office-markers').classList.toggle('cheongju-cards',name==='청주시');
   setNational(false);
   $('panel').hidden=!name;
+  $('compare-open').hidden=Boolean(name);
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
   // The school filter opens by itself whenever a district with schools is chosen.

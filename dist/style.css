@@ -329,3 +329,25 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .neighbour:focus { outline:none; }
 .neighbour:focus-visible { stroke:#4877ac; stroke-width:2.5px; }
 .neighbour-label { font-weight:700; fill:#7a8078; stroke:#f3f4ef; paint-order:stroke; }
+/* Region comparison button and dialog. */
+#compare-open { position:absolute; z-index:2; top:28px; left:28px; min-height:44px; padding:0 14px; border-radius:15px; background:var(--paper); border:1px solid #d7ded0; box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907; color:var(--pine); font-size:13px; font-weight:700; }
+#compare-open:hover { background:#edf2e9; }
+#compare-open[hidden] { display:none; }
+@media(max-width:720px),(max-height:540px){ #compare-open { top:16px; left:15px; border-radius:10px; } }
+#compare-dialog { width:460px; }
+#compare-dialog .modal-title button { min-width:44px; min-height:44px; font-size:14px; }
+.compare-tabs { display:flex; gap:4px; margin:10px 0 4px; }
+.compare-tabs button { flex:1; min-height:42px; border-radius:8px; border:1px solid var(--line); font-size:14px; font-weight:650; }
+.compare-tabs button[aria-pressed="true"] { background:var(--pine); color:white; }
+.compare-lead { margin:10px 0 4px; line-height:1.55; color:#36503f; text-wrap:pretty; }
+.compare-item { padding:12px 0; border-top:1px solid var(--line); }
+.compare-item h3 { margin:0 0 8px; font-size:16px; }
+.compare-item h3 small { margin-left:4px; font-size:12px; font-weight:500; color:#6b7a70; }
+.bar-row { display:grid; grid-template-columns:84px 1fr 92px; align-items:center; gap:8px; margin:5px 0; font-size:13px; }
+.bar-row i { display:block; height:14px; width:var(--w); border-radius:4px; background:var(--pine); }
+.bar-row.other i { background:#b7a774; }
+.bar-row b { font-size:13px; white-space:nowrap; text-align:right; }
+.compare-note { margin:8px 0 2px; font-size:14px; line-height:1.5; color:#36503f; text-wrap:pretty; }
+.compare-q { margin:6px 0 0; font-size:14px; font-weight:700; line-height:1.5; color:#24523d; text-wrap:pretty; }
+.nowrap { white-space:nowrap; }
+@media(max-width:400px){ .compare-tabs button { font-size:13px; padding:0 4px; } }
