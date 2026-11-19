@@ -68,6 +68,16 @@ for(const {short,label:[x,y]} of neighbourData){
   const text=element(neighbourNames,'text',{x,y,class:'neighbour-label','text-anchor':'middle','dominant-baseline':'central'});
   text.textContent=short;neighbourLabels.push(text);
 }
+// 경기도 시·군 경계와 이름 (회색 지역 위 얇은 선, 누르면 아래 경기도로 전달)
+const cityData=typeof gyeonggiCities==='object'?gyeonggiCities:[];
+const cityLayer=element(neighbourLayer,'g',{class:'neighbour-cities','pointer-events':'none'});
+const cityLabels=[];
+for(const {path} of cityData) element(cityLayer,'path',{d:path});
+for(const {name,label:[x,y]} of cityData){
+  const text=element(cityLayer,'text',{x,y,class:'city-name','text-anchor':'middle','dominant-baseline':'central'});
+  text.textContent=name;cityLabels.push(text);
+}
+neighbourLayer.append(neighbourNames);
 // Sub-areas (청주 4개 구, 진천·음성·보은 읍·면) appear over the district once school cards are shown there.
 const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
 world.insertBefore(guLayer,$('labels'));
@@ -796,6 +806,8 @@ function draw(){
   });
   const guSize=Math.min(17,12+2*Math.log2(z));
   for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
+  cityLayer.classList.toggle('far',z<.7);
+  for(const text of cityLabels){text.style.fontSize=(Math.max(10,Math.min(13,10.5+1.5*Math.log2(z)))/k)+'px';text.style.strokeWidth=(2.2/k)+'px'}
   for(const text of neighbourLabels){text.style.fontSize=(Math.max(10,Math.min(15,11+2*Math.log2(z)))/k)+'px';text.style.strokeWidth=(2.4/k)+'px'}
   $('zoom-range').value=z;
   $('zoom-range').setAttribute('aria-valuetext',Number(z.toFixed(2))+'배');
