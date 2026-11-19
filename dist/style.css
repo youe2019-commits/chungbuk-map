@@ -140,6 +140,10 @@
 :is(#school-options,#institution-options) label[hidden] { display:none; }
 #region-info { display:block; min-height:44px; width:100%; padding:0 9px; color:var(--pine); font-size:12px; font-weight:650; border-top:1px solid var(--line); }
 #region-info[hidden] { display:none; }
+#card-pages { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); font-size:12px; }
+#card-pages[hidden], .field:has(.cards-hidden) #card-pages { display:none; }
+#card-pages button { min-height:36px; width:36px; font-size:21px; }
+#card-pages button:disabled { opacity:.35; }
 #region-dialog { width:380px; }
 #region-dialog .modal-title button { width:auto; min-width:44px; height:44px; font-size:14px; }
 .numbers { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:8px 0 14px; }

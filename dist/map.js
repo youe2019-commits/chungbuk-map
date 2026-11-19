@@ -59,7 +59,8 @@ const schoolTypes={
   privateMiddle:{label:'사립중', level:'middle', color:'#a04b12'},
   nationalMiddle:{label:'국립중', level:'middle', color:'#6e5926'},
   publicHigh:{label:'공립고', level:'high', color:'#245ca3'},
-  privateHigh:{label:'사립고', level:'high', color:'#784499'}
+  privateHigh:{label:'사립고', level:'high', color:'#784499'},
+  nationalHigh:{label:'국립고', level:'high', color:'#85591d'}
 };
 // 청주시 중학교 위치·설립형태: 전국초중등학교위치표준데이터 (2026-10-01).
 const offices = [
@@ -207,6 +208,71 @@ const offices = [
    address:'보은군 보은읍 자영고길 10', description:'스마트팜에서 작물 재배와 환경 제어를 실습하고 농산물 유통·경영을 배워 농업 창업을 준비합니다.', url:'https://school.cbe.go.kr/cbb-h/'},
   {name:'보은고등학교', region:'보은군', schoolType:schoolTypes.privateHigh, short:'보은고', kind:'사립 고등학교', icon:'book', lat:36.4750884, lon:127.7211248,
    address:'보은군 보은읍 보은로 17', description:'보은군 보은읍에 있는 사립 고등학교입니다. 국어·수학·영어 등 보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/boeun-h/'},
+  // 청주 고등학교 위치·설립형태: 전국초중등학교위치표준데이터(2026-10-01), 학교알리미 학교기본정보.
+  {name:'금천고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'금천고', kind:'공립 고등학교', icon:'book', lat:36.62779716, lon:127.5119428,
+   address:'청주시 상당구 호미로233번길 65', description:'상당구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/kch-h'},
+  {name:'다다예술학교(고)', region:'청주시', schoolType:schoolTypes.privateHigh, short:'다다예술학교(고)', kind:'사립 대안학교', icon:'book', lat:36.5909401696, lon:127.6110663318,
+   address:'청주시 상당구 낭성면 단재로 1794', description:'청주시 상당구 낭성면에 있는 다다예술학교의 고등학교 과정입니다.', url:'http://www.ddart.org'},
+  {name:'단재고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'단재고', kind:'공립 대안학교', icon:'book', lat:36.5626094238, lon:127.5607447647,
+   address:'청주시 상당구 가덕면 계산은행로 12', description:'청주시 상당구 가덕면에 있는 공립 대안학교입니다.', url:'https://school.cbe.go.kr/danjae-h/'},
+  {name:'봉명고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'봉명고', kind:'공립 고등학교', icon:'book', lat:36.65492565, lon:127.4552839,
+   address:'청주시 흥덕구 월명로220번길 19', description:'흥덕구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cbm-h/M01'},
+  {name:'산남고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'산남고', kind:'공립 고등학교', icon:'book', lat:36.60858732, lon:127.4697341,
+   address:'청주시 서원구 두꺼비로 7', description:'서원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/sannam-h'},
+  {name:'상당고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'상당고', kind:'공립 고등학교', icon:'book', lat:36.60641965, lon:127.5086186,
+   address:'청주시 상당구 월평로238번길 3-10', description:'상당구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/sangdang-h'},
+  {name:'서원고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'서원고', kind:'공립 고등학교', icon:'book', lat:36.62008178, lon:127.4410388,
+   address:'청주시 흥덕구 가경로 49', description:'흥덕구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/seowongo-h'},
+  {name:'세광고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'세광고', kind:'사립 고등학교', icon:'book', lat:36.6032833, lon:127.4529213,
+   address:'청주시 서원구 2순환로 1572', description:'서원구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/skhs-h/'},
+  {name:'양청고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'양청고', kind:'공립 고등학교', icon:'book', lat:36.72699018, lon:127.4335201,
+   address:'청주시 청원구 오창읍 양청6길 33', description:'청원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/yc-h/M01'},
+  {name:'오송고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'오송고', kind:'공립 고등학교', icon:'book', lat:36.62962002, lon:127.3259846,
+   address:'청주시 흥덕구 오송읍 오송생명3로 95', description:'흥덕구에 있는 공립 자율고등학교입니다.', url:'https://school.cbe.go.kr/os-h'},
+  {name:'오창고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'오창고', kind:'공립 고등학교', icon:'book', lat:36.7341991, lon:127.4616514,
+   address:'청주시 청원구 오창읍 괴정1길 10', description:'청원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/ochang-h/'},
+  {name:'운호고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'운호고', kind:'사립 고등학교', icon:'book', lat:36.62505317, lon:127.4851868,
+   address:'청주시 서원구 무심서로 375', description:'서원구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/unho-h/'},
+  {name:'일신여자고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'일신여고', kind:'사립 고등학교', icon:'book', lat:36.62692783, lon:127.4968969,
+   address:'청주시 상당구 영운로 126', description:'상당구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cjis-h/'},
+  {name:'주성고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'주성고', kind:'공립 고등학교', icon:'book', lat:36.63483259, lon:127.5106512,
+   address:'청주시 상당구 호미로 310', description:'상당구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/juseong-h'},
+  {name:'청석고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'청석고', kind:'사립 고등학교', icon:'book', lat:36.61443915, lon:127.5066419,
+   address:'청주시 상당구 원봉로 75', description:'상당구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cs-h'},
+  {name:'청원고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청원고', kind:'공립 고등학교', icon:'book', lat:36.71412973, lon:127.4150059,
+   address:'청주시 청원구 오창읍 구룡5길 9', description:'청원구에 있는 공립 자율고등학교입니다.', url:'https://school.cbe.go.kr/cw-h'},
+  {name:'청주고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주고', kind:'공립 고등학교', icon:'book', lat:36.63602351, lon:127.4552331,
+   address:'청주시 흥덕구 사직대로 79', description:'흥덕구에 있는 공립 자율고등학교입니다.', url:'https://school.cbe.go.kr/cheongju-h'},
+  {name:'청주고등학교부설방송통신고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주방통고', kind:'공립 방송통신고', icon:'book', lat:36.6360605251, lon:127.4553103878,
+   address:'청주시 흥덕구 사직대로 79', description:'청주고등학교에 부설된 방송통신고등학교로, 원격수업과 출석수업을 병행합니다.', url:'https://school.cbe.go.kr/cheongju-h/'},
+  {name:'청주대성고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주대성고', kind:'사립 고등학교', icon:'book', lat:36.65378546, lon:127.4906593,
+   address:'청주시 청원구 대성로300번길 18', description:'청원구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cjds-h'},
+  {name:'청주신흥고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'청주신흥고', kind:'사립 고등학교', icon:'book', lat:36.66965116, lon:127.4965194,
+   address:'청주시 청원구 율봉로 229', description:'청원구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/shinheung-h/'},
+  {name:'청주여자고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주여고', kind:'공립 고등학교', icon:'book', lat:36.66774008, lon:127.489702,
+   address:'청주시 청원구 충청대로107번길 82', description:'청원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cheongjug-h'},
+  {name:'청주중앙여자고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주중앙여고', kind:'공립 고등학교', icon:'book', lat:36.63776915, lon:127.4645545,
+   address:'청주시 서원구 천석로 15', description:'서원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cjjang-h'},
+  {name:'충북고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북고', kind:'공립 고등학교', icon:'book', lat:36.60854214, lon:127.4817144,
+   address:'청주시 서원구 청남로 1969', description:'서원구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/chungbukgo-h'},
+  {name:'충북과학고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북과학고', kind:'공립 고등학교', icon:'book', lat:36.58779121, lon:127.5691772,
+   address:'청주시 상당구 가덕면 교육원로 153-135', description:'상당구에 있는 공립 특수목적고등학교입니다.', url:'https://school.cbe.go.kr/cbs-h/M01'},
+  {name:'충북대학교사범대학부설고등학교', region:'청주시', schoolType:schoolTypes.nationalHigh, short:'충북대사대부고', kind:'국립 고등학교', icon:'book', lat:36.6239268, lon:127.4385184,
+   address:'청주시 흥덕구 장구봉로41번길 12', description:'흥덕구에 있는 국립 일반고등학교입니다.', url:'https://school.cbe.go.kr/cbnu-h'},
+  {name:'충북에너지고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북에너지고', kind:'공립 고등학교', icon:'book', lat:36.63980192, lon:127.6571478,
+   address:'청주시 상당구 미원면 미원초정로 27', description:'상당구에 있는 공립 특수목적고등학교입니다.', url:'https://school.cbe.go.kr/cbenergy-h/'},
+  {name:'충북여자고등학교', region:'청주시', schoolType:schoolTypes.privateHigh, short:'충북여고', kind:'사립 고등학교', icon:'book', lat:36.62538218, lon:127.4841669,
+   address:'청주시 서원구 무심서로 377-2', description:'서원구에 있는 사립 일반고등학교입니다.', url:'https://school.cbe.go.kr/chungbuk-h/'},
+  {name:'충북예술고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북예술고', kind:'공립 고등학교', icon:'book', lat:36.61085188, lon:127.4327541,
+   address:'청주시 흥덕구 서부로 1185', description:'흥덕구에 있는 공립 특수목적고등학교입니다.', url:'https://school.cbe.go.kr/cbart-h/'},
+  {name:'충북온라인학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북온라인학교', kind:'공립 온라인학교', icon:'book', lat:36.6144968508, lon:127.4846839435,
+   address:'청주시 서원구 청남로 2039', description:'다른 고등학교에 재학 중인 학생들이 온라인으로 과목을 이수합니다. 재학생 수는 별도로 공시하지 않습니다.', url:'https://school.cbe.go.kr/cbonline-h'},
+  {name:'충북외국어고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'충북외고', kind:'공립 고등학교', icon:'book', lat:36.6255022, lon:127.4444905,
+   address:'청주시 흥덕구 장구봉로 107', description:'흥덕구에 있는 공립 특수목적고등학교입니다.', url:'https://school.cbe.go.kr/cfl-h/M01'},
+  {name:'한국교원대학교부설고등학교', region:'청주시', schoolType:schoolTypes.nationalHigh, short:'교원대부고', kind:'국립 고등학교', icon:'book', lat:36.6056652, lon:127.3573247,
+   address:'청주시 흥덕구 강내면 태성탑연로 250', description:'흥덕구에 있는 국립 일반고등학교입니다.', url:'https://school.cbe.go.kr/ahsknue-h/'},
+  {name:'흥덕고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'흥덕고', kind:'공립 고등학교', icon:'book', lat:36.63686278, lon:127.4239538,
+   address:'청주시 흥덕구 증안로 9', description:'흥덕구에 있는 공립 일반고등학교입니다.', url:'https://school.cbe.go.kr/hds-h/'},
   {name:'청주공업고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주공고', kind:'공립고', icon:'book', lat:36.6383598, lon:127.4856352,
    address:'청주시 상당구 교서로 17', description:'전자회로와 반도체 기초, 프로그래밍 등을 배우며 공업 기술 분야의 진로를 준비합니다.', url:'https://school.cbe.go.kr/ck-h/'},
   {name:'청주농업고등학교', region:'청주시', schoolType:schoolTypes.publicHigh, short:'청주농고', kind:'공립고', icon:'book', lat:36.6600712, lon:127.4842284,
@@ -352,6 +418,7 @@ function updateCardVisibility(){
 cardToggle.onclick=()=>{
   cardsVisible=!cardsVisible;
   updateCardVisibility();
+  layoutRegionCards();draw();
   try { localStorage.setItem(cardsKey,String(cardsVisible)); } catch {}
 };
 updateCardVisibility();
@@ -397,6 +464,7 @@ const typeInputs=Object.entries(schoolTypes).map(([key,type])=>{
   return input;
 });
 function updateFilters(){
+  cardPage=0;
   layoutRegionCards();
   draw();
   history.replaceState(entryState(),'');
@@ -426,6 +494,11 @@ $('show-school-list').onclick=()=>{
 };
 $('close-school-list').onclick=()=>schoolListDialog.close();
 
+let cardPage=0;
+const cardPages=$('card-pages');
+$('previous-cards').onclick=()=>{cardPage--;layoutRegionCards();draw()};
+$('next-cards').onclick=()=>{cardPage++;layoutRegionCards();draw()};
+
 function layoutSchools(cards){
   cards.sort((a,b)=>b.marker.office.lat-a.marker.office.lat || a.marker.office.name.localeCompare(b.marker.office.name,'ko'));
   // Pair neighbours by latitude. Column choices depend only on geography,
@@ -444,8 +517,28 @@ function layoutSchools(cards){
   const right=landscape?document.querySelector('.map-mode').getBoundingClientRect().left-8:vw-inset;
   const cheongju=selected==='청주시';
   const edgeGap=cheongju?4:8;
-  const top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
+  let top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
   const bottom=landscape?vh-edgeGap:controls.top-mapTop-edgeGap;
+  // When high-school filters crowd the map, page the labels but keep all location dots.
+  const minPitch=26;
+  if(cheongju && cards.some(({marker})=>marker.office.schoolType?.level==='high')
+      && Math.ceil(cards.length/2)*minPitch>bottom-top){
+    cardPages.hidden=false;
+    if(!landscape)top=Math.max(top,cardPages.getBoundingClientRect().bottom-mapTop+edgeGap);
+    const perPage=2*Math.max(1,Math.floor((bottom-top)/minPitch));
+    const pages=Math.ceil(cards.length/perPage);
+    cardPage=Math.max(0,Math.min(cardPage,pages-1));
+    const start=cardPage*perPage;
+    cards.forEach(({marker},index)=>{
+      const hidden=index<start || index>=start+perPage;
+      marker.button.hidden=hidden;
+      marker.line.style.display=hidden?'none':'';
+    });
+    cards=cards.slice(start,start+perPage);
+    $('card-page-number').textContent=(cardPage+1)+' / '+pages;
+    $('previous-cards').disabled=cardPage===0;
+    $('next-cards').disabled=cardPage===pages-1;
+  }
   const maxWidth=(right-left-12)/2;
   const rows=Math.ceil(cards.length/2);
   const pitch=Math.min(cheongju?50:46,(bottom-top)/rows);
@@ -491,6 +584,7 @@ function layoutSchools(cards){
 // Lay out once in the fitted region view. Move the entire layout with the map.
 let annotationView=null;
 function layoutRegionCards(){
+  cardPages.hidden=true;
   const mobile=compact.matches;
   const pitch=44;
   const visible=[];
@@ -610,6 +704,7 @@ function fitSelection(){
 function panel(open){$('panel').classList.toggle('open',open);$('mobile-select').setAttribute('aria-expanded',String(open))}
 function renderSelection(name,view){
   if(selected!==name || view){
+    cardPage=0;
     for(const [institution,input] of institutionInputs){
       input.checked=Array.isArray(view?.institutions) && view.institutions.includes(institution);
     }
