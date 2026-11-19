@@ -480,11 +480,15 @@ const schoolToggle=$('school-toggle');
 schoolToggle.onclick=()=>{
   schoolToggle.setAttribute('aria-expanded',String(schoolToggle.getAttribute('aria-expanded')!=='true'));
 };
-const typeInputs=Object.entries(schoolTypes).map(([key,type])=>{
+// National middle and high schools share one filter: '국립'.
+function filterTypes(key){
+  return key==='nationalMiddle'?[schoolTypes.nationalMiddle,schoolTypes.nationalHigh]:[schoolTypes[key]];
+}
+const typeInputs=Object.entries(schoolTypes).filter(([key])=>key!=='nationalHigh').map(([key,type])=>{
   const label=document.createElement('label');
   const input=document.createElement('input');
   input.type='checkbox'; input.value=key;
-  const name=document.createElement('span'); name.textContent=type.label;
+  const name=document.createElement('span'); name.textContent=key==='nationalMiddle'?'국립':type.label;
   label.style.setProperty('--office-color',type.color);
   label.append(input,name);
   $('school-options').insertBefore(label,$('show-school-list'));
@@ -500,7 +504,7 @@ schoolFilter.addEventListener('change',updateFilters);
 const schoolsNorthFirst=officeMarkers.filter(marker=>marker.office.schoolType)
   .sort((a,b)=>b.office.lat-a.office.lat || a.office.name.localeCompare(b.office.name,'ko'));
 function matchesSchoolLevel(office){
-  return typeInputs.some(input=>input.checked && schoolTypes[input.value]===office.schoolType)
+  return typeInputs.some(input=>input.checked && filterTypes(input.value).includes(office.schoolType))
     && (!selectedGu || office.address.includes('청주시 '+selectedGu));
 }
 
@@ -740,7 +744,7 @@ function renderSelection(name,view){
     cardPage=0;
     for(const input of typeInputs){
       if(Array.isArray(view?.types)) input.checked=view.types.includes(input.value);
-      else if(view?.schoolLevel) input.checked=view.schoolLevel==='all'||schoolTypes[input.value].level===view.schoolLevel;
+      else if(view?.schoolLevel) input.checked=view.schoolLevel==='all'||filterTypes(input.value).some(type=>type.level===view.schoolLevel);
       else input.checked=name!=='' && name!=='청주시' && (input.value==='publicMiddle' || input.value==='publicHigh');
     }
   }
@@ -755,7 +759,7 @@ function renderSelection(name,view){
   schoolFilter.hidden=!offices.some(office=>office.region===name && office.schoolType);
   $('school-list-title').textContent=name+' 학교 목록';
   for(const input of typeInputs){
-    input.parentElement.hidden=!offices.some(office=>office.region===name && office.schoolType===schoolTypes[input.value]);
+    input.parentElement.hidden=!offices.some(office=>office.region===name && filterTypes(input.value).includes(office.schoolType));
   }
   paths.forEach((path,n)=>{
     path.classList.toggle('active',n===name);

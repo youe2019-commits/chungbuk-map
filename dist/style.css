@@ -310,3 +310,12 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .lesson-story details p { margin:6px 0; }
 .lesson-story details b { margin-right:4px; }
 .lesson-map .faint { opacity:.55; }
+/* Balanced lines: no single word left alone on the last line. */
+.lesson-question, .lesson-story h3, .lesson-story strong, .modal-title h2 { text-wrap:balance; }
+.lesson-story p, .lesson-story details p, .lesson-task { text-wrap:pretty; }
+@media(max-width:400px){
+  #school-options label { padding:0 2px; gap:2px; }
+  #school-options label span { font-size:13px; }
+  #school-options #show-school-list { padding:0 6px; font-size:13px; }
+}
+@media(max-width:720px){ #school-options { width:max-content; max-width:calc(100vw - 30px); } }
