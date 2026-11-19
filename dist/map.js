@@ -819,10 +819,6 @@ ministryCard.addEventListener('cancel',event=>{
   history.back();
 });
 
-$('nation-chungbuk').addEventListener('click', event=>{
-  event.preventDefault();
-  history.back();
-});
 // 충북 / 전국 buttons next to the zoom bar switch between the two maps.
 $('nation-toggle').onclick=()=>{
   if(!$('nation-view').hidden) return;

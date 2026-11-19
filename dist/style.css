@@ -275,3 +275,4 @@ header { height:52px; padding:0 24px; }
 .gu:focus-visible { stroke:#1d4a35; stroke-width:3px; }
 .gu-label { font-weight:750; fill:#24503b; stroke:#fbfbf3; paint-order:stroke; }
 .map-label.muted { opacity:0; transition:opacity .45s ease; }
+#nation-chungbuk { pointer-events:none; }
