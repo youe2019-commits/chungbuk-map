@@ -380,3 +380,13 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 #assembly-org .org-grid li strong { font-size:13px; }
 #assembly-org .org-grid li span { font-size:12px; line-height:1.45; }
 @media(max-width:400px){ .nation-actions .lesson-open { padding:4px 8px; } }
+/* National map: own zoom, translucent 충북, stronger 세종·서울경기. */
+.nation-sheet { width:calc(min(100%, 69cqh) * var(--ns,1)); }
+.nation-scroll { touch-action:pan-x pan-y; }
+#nation-chungbuk path { fill:#f2f4ef; fill-opacity:.62; stroke:#5d8a6c; stroke-width:.8; }
+#nation-chungbuk rect { fill:none; }
+#nation-chungbuk text { font-size:12px; font-weight:750; fill:#3f6d51; stroke:#f6f7f3; stroke-width:2.4px; paint-order:stroke; }
+.ministry-city path { fill:#2f78b4; fill-opacity:.5; stroke:#215f92; stroke-width:1; }
+.ministry-city:hover path, .ministry-city:focus-visible path { fill-opacity:.65; }
+.ministry-city .city-label { fill:#ffffff; stroke:#215f92; stroke-width:1.1; }
+.ministry-city text { fill:#174a73; }

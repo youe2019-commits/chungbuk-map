@@ -872,8 +872,42 @@ function setNational(active){
   $('fit').setAttribute('aria-pressed',String(!active));
   $('nation-toggle').setAttribute('aria-pressed',String(active));
   document.querySelector('.brand strong').textContent=active?'전국 지도':'충북 지도';
-  if(active)document.querySelector('.nation-scroll').scrollTop=0;
+  if(active){setNationScale(1);document.querySelector('.nation-scroll').scrollTop=0}
 }
+// The national map zooms on its own (pinch or ctrl/trackpad wheel) instead of the browser zooming the page,
+// so cards and dialogs opened from it always appear at their normal size.
+const nationScroll=document.querySelector('.nation-scroll'), nationSheet=document.querySelector('.nation-sheet');
+let nationScale=1, nationPinch=null;
+function setNationScale(next,cx,cy){
+  next=Math.min(4,Math.max(1,next));
+  const box=nationScroll.getBoundingClientRect();
+  const x=cx??box.left+box.width/2, y=cy??box.top+box.height/2;
+  const px=nationScroll.scrollLeft+x-box.left, py=nationScroll.scrollTop+y-box.top, ratio=next/nationScale;
+  nationScale=next;
+  nationSheet.style.setProperty('--ns',next);
+  nationScroll.scrollLeft=px*ratio-(x-box.left);
+  nationScroll.scrollTop=py*ratio-(y-box.top);
+}
+nationScroll.addEventListener('touchstart',e=>{
+  if(e.touches.length!==2)return;
+  const [a,b]=e.touches;
+  nationPinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),scale:nationScale};
+},{passive:true});
+nationScroll.addEventListener('touchmove',e=>{
+  if(!nationPinch||e.touches.length!==2)return;
+  e.preventDefault();
+  const [a,b]=e.touches;
+  setNationScale(nationPinch.scale*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/nationPinch.distance,(a.clientX+b.clientX)/2,(a.clientY+b.clientY)/2);
+},{passive:false});
+nationScroll.addEventListener('touchend',e=>{if(e.touches.length<2)nationPinch=null});
+nationScroll.addEventListener('wheel',e=>{
+  if(!e.ctrlKey)return;
+  e.preventDefault();
+  setNationScale(nationScale*Math.exp(-e.deltaY/200),e.clientX,e.clientY);
+},{passive:false});
+// Safari's own pinch gesture would zoom the whole page; keep it on the map instead.
+for(const type of ['gesturestart','gesturechange'])
+  document.addEventListener(type,e=>{if(!$('nation-view').hidden)e.preventDefault()},{passive:false});
 const ministryCard=$('ministry-card');
 const lesson=$('relocation-lesson');
 function setLessonStep(step){
