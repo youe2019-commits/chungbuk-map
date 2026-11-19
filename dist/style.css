@@ -276,3 +276,4 @@ header { height:52px; padding:0 24px; }
 .gu-label { font-weight:750; fill:#24503b; stroke:#fbfbf3; paint-order:stroke; }
 .map-label.muted { opacity:0; transition:opacity .45s ease; }
 #nation-chungbuk { pointer-events:none; }
+@media(max-width:720px){ #school-options { flex-wrap:wrap; width:calc(100vw - 30px); max-width:none; overflow-x:visible; } }

@@ -716,6 +716,7 @@ function fitSelection(){
   draw();
 }
 function renderSelection(name,view){
+  const entering=selected!==name;
   if(selected!==name) selectedGu='';
   if(selected!==name || view){
     cardPage=0;
@@ -731,7 +732,8 @@ function renderSelection(name,view){
   $('panel').hidden=!name;
   $('region-info').hidden=!name;
   cardToggle.hidden=!offices.some(office=>office.region===name);
-  schoolToggle.setAttribute('aria-expanded','false');
+  // The school filter opens by itself only when Cheongju is chosen.
+  schoolToggle.setAttribute('aria-expanded',String(entering && name==='청주시'));
   schoolFilter.hidden=!offices.some(office=>office.region===name && office.schoolType);
   $('school-list-title').textContent=name+' 학교 목록';
   for(const input of typeInputs){
