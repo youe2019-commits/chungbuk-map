@@ -658,6 +658,7 @@ function setNational(active){
   $('nation-view').hidden=!active;
   $('nation-toggle').hidden=Boolean(selected);
   $('nation-toggle').textContent=active?'충북 전체 보기':'전국 지도 보기';
+  document.querySelector('.brand strong').textContent=active?'전국 지도':'충북 지도';
   if(active){
     panel(false);
     document.querySelector('.nation-scroll').scrollTop=0;
