@@ -824,7 +824,7 @@ function restoreEntry(state){
     renderSelection(view.region,view);
     if(!view.region && view.national){
       setNational(true);
-      if(['0','1','2'].includes(state.lessonStep)){
+      if(['0','1','2','3'].includes(state.lessonStep)){
         openLesson(state.lessonStep);
       }else if([...ministryCard.querySelectorAll('[data-ministries]')].some(group=>group.dataset.ministries===state.ministryCity)){
         showMinistries(state.ministryCity);

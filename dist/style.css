@@ -239,3 +239,21 @@ header { height:52px; padding:0 24px; }
 .org-legend .org-busan::before { background:#b27a3a; }
 @media(max-width:520px){ .org-dialog { width:calc(100vw - 24px); } }
 @media(max-width:400px){ .nation-actions { left:14px; top:44px; } }
+/* Debate: one main question, steps gather evidence. */
+.lesson-question { margin:10px 0 4px; padding:10px 12px; border-radius:9px; background:#edf3e8; font-size:16px; font-weight:750; line-height:1.45; color:#1f4a37; }
+.lesson-question small { display:block; margin-bottom:2px; font-size:12px; font-weight:650; color:#4f6f5c; }
+.lesson-steps button { font-size:14px; }
+.lesson-task { padding:9px 11px; border-left:3px solid var(--pine); background:#f8fbf5; font-size:15px !important; }
+/* Organisation charts: groups and drill-down. */
+.org-group { width:100%; }
+.org-group h3 { margin:6px 0 6px; font-size:14px; color:#36503f; }
+.org-group h3 small { font-weight:500; color:#6b7a70; }
+.org-group + .org-group { margin-top:4px; }
+.org-units details summary { cursor:pointer; list-style:none; position:relative; padding-right:18px; }
+.org-units details summary::-webkit-details-marker { display:none; }
+.org-units details summary::after { content:"›"; position:absolute; right:2px; top:0; font-size:16px; color:#6b7a70; transition:transform .15s; }
+.org-units details[open] summary::after { transform:rotate(90deg); }
+.org-sub { margin:8px 0 2px; padding:0 0 0 10px; list-style:none; border-left:2px solid #c9d6cc; display:grid; gap:6px; }
+.org-sub li { padding:0; border:0; background:none; font-size:13px; }
+.org-sub b { font-weight:650; }
+.org-sub span { margin-top:1px; }
