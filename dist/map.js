@@ -844,7 +844,8 @@ gestureArea.addEventListener('click',e=>{
   const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker'):pendingMapTap;
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
-  else if(target?.dataset.region)choose(target.dataset.region);
+  // Clicking the already selected district again returns to the whole-province view.
+  else if(target?.dataset.region)choose(target.dataset.region===selected?'':target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
   const delta=45/(base*z);
