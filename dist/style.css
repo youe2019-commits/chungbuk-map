@@ -257,3 +257,9 @@ header { height:52px; padding:0 24px; }
 .org-sub li { padding:0; border:0; background:none; font-size:13px; }
 .org-sub b { font-weight:650; }
 .org-sub span { margin-top:1px; }
+/* Rivers and lakes on the terrain map. */
+#water .water-area { fill:#9cc3d6; fill-opacity:.85; stroke:#7fafc6; stroke-width:.25; }
+#water .water-line { fill:none; stroke:#86b6cc; stroke-width:1.3px; stroke-linecap:round; stroke-linejoin:round; }
+.district:focus { outline:none; }
+.osm-credit { position:absolute; left:31px; bottom:8px; font-size:9px; color:#6b786d; text-decoration:none; }
+@media(max-width:720px),(max-height:540px){ .osm-credit { left:18px; bottom:4px; } }

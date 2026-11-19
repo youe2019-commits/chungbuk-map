@@ -14,6 +14,10 @@ const land=$('land');
 const terrain=document.createElementNS(ns,'g');
 element(terrain,'image',{id:'contours',href:'contours.webp',x:-650,y:-400,width:W+1300,height:H+800,'pointer-events':'none'});
 element(terrain,'image',{id:'relief',href:'relief.webp',width:W,height:H,preserveAspectRatio:'none','clip-path':'url(#province)','pointer-events':'none'});
+// Rivers and lakes on the terrain map (OpenStreetMap), already clipped to the province.
+const waterLayer=element(terrain,'g',{id:'water','pointer-events':'none','aria-hidden':'true'});
+element(waterLayer,'path',{class:'water-area',d:water.area,'fill-rule':'evenodd'});
+element(waterLayer,'path',{class:'water-line',d:water.rivers,'vector-effect':'non-scaling-stroke'});
 
 const modeControls = document.querySelectorAll('input[name="map-mode"]');
 const modeKey = 'chungbuk-atlas.map-mode';
@@ -909,7 +913,15 @@ gestureArea.addEventListener('click',e=>{
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
   // Clicking the already selected district again returns to the whole-province view.
-  else if(target?.dataset.region)choose(target.dataset.region===selected?'':target.dataset.region);
+  else if(target?.dataset.region===selected){
+    // Clicking the selected district again shows the whole province, centred on that district.
+    const [[l,t],[r,b]]=regions.find(region=>region.name===selected).bounds;
+    choose('');
+    center=[(l+r)/2,(t+b)/2];
+    draw();
+    history.replaceState(entryState(),'');
+  }
+  else if(target?.dataset.region)choose(target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
   const region=e.target.dataset.region;
