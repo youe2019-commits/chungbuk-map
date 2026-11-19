@@ -10,13 +10,15 @@ function element(parent, tag, attrs) {
 const {width:W,height:H,regions,km}=geography;
 const colors=['#e6edcd','#e2eccf','#cddfc5','#eee6c1','#f1e8cb','#e1e7c6','#efdcb7','#d7e7ce','#d2e2ba','#e5e8c4','#d7e4d3'];
 const map=$('map'), world=$('world');
-const backdrop=element(world,'image',{id:'contours',href:'contours.webp',x:-650,y:-400,width:W+1300,height:H+800,'pointer-events':'none'});
-world.prepend(backdrop);
+const land=$('land');
+const terrain=document.createElementNS(ns,'g');
+element(terrain,'image',{id:'contours',href:'contours.webp',x:-650,y:-400,width:W+1300,height:H+800,'pointer-events':'none'});
+element(terrain,'image',{id:'relief',href:'relief.webp',width:W,height:H,preserveAspectRatio:'none','clip-path':'url(#province)','pointer-events':'none'});
 
 const modeControls = document.querySelectorAll('input[name="map-mode"]');
 const modeKey = 'chungbuk-atlas.map-mode';
 function showMode(mode) {
-  map.classList.toggle('flat', mode === 'flat');
+  $('basemap').replaceChildren(mode === 'flat' ? land : terrain);
   $('nation-map').src = mode === 'flat' ? 'nation-flat.webp' : 'nation-terrain.webp';
   for (const control of modeControls) control.checked = control.value === mode;
 }
@@ -32,11 +34,10 @@ for (const control of modeControls) {
   });
 }
 
-$('relief').setAttribute('width',W);$('relief').setAttribute('height',H);$('relief').setAttribute('preserveAspectRatio','none');
 const paths=new Map(), labels=new Map(), buttons=new Map();
 regions.forEach(({name,path,label},i)=>{
   element($('province'),'path',{d:path,'clip-rule':'evenodd'});
-  element($('land'),'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
+  element(land,'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
   const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name});
   paths.set(name,region);
   region.addEventListener('pointerenter',()=>region.classList.add('hover'));
@@ -714,7 +715,7 @@ function renderSelection(name,view){
     for(const input of typeInputs){
       if(Array.isArray(view?.types)) input.checked=view.types.includes(input.value);
       else if(view?.schoolLevel) input.checked=view.schoolLevel==='all'||schoolTypes[input.value].level===view.schoolLevel;
-      else input.checked=input.value==='publicMiddle';
+      else input.checked=input.value==='publicMiddle' || (input.value==='publicHigh' && name!=='' && name!=='청주시');
     }
   }
   selected=name;
