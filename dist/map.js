@@ -439,8 +439,9 @@ function layoutSchools(cards){
   const controls=document.querySelector('.controls').getBoundingClientRect();
   const landscape=compact.matches && vh<425 && vw>=540;
   const inset=compact.matches?4:Math.max(16,vw*.025);
-  const left=landscape?Math.max(filter.right,controls.right,document.querySelector('.map-mode').getBoundingClientRect().right)+8:inset;
-  const right=vw-inset;
+  // In landscape the left controls take the left edge; the terrain switch sits at the top right.
+  const left=landscape?Math.max(filter.right,controls.right,$('panel').getBoundingClientRect().right)+8:inset;
+  const right=landscape?document.querySelector('.map-mode').getBoundingClientRect().left-8:vw-inset;
   const cheongju=selected==='청주시';
   const edgeGap=cheongju?4:8;
   const top=landscape?edgeGap:Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom)-mapTop+edgeGap;
