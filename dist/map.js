@@ -69,7 +69,11 @@ for(const {short,label:[x,y]} of neighbourData){
   text.textContent=short;neighbourLabels.push(text);
 }
 // 경기도 시·군 경계와 이름 (회색 지역 위 얇은 선, 누르면 아래 경기도로 전달)
-const cityData=typeof gyeonggiCities==='object'?gyeonggiCities:[];
+// 지도에서 이름이 서울보다 남쪽에 놓인 시·군만 경계 전체를 표시한다.
+const seoulY=neighbourData.find(region=>region.name==='서울특별시')?.label[1];
+const cityData=typeof gyeonggiCities==='object'
+  ? gyeonggiCities.filter(city=>city.label[1]>seoulY)
+  : [];
 const cityLayer=element(neighbourLayer,'g',{class:'neighbour-cities','pointer-events':'none'});
 const cityLabels=[];
 for(const {path} of cityData) element(cityLayer,'path',{d:path});
