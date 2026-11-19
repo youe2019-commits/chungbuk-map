@@ -302,3 +302,11 @@ header { height:52px; padding:0 24px; }
   #region-info .short { display:inline; }
   .school-filter { left:137px; }
 }
+/* Keep Korean words whole when lines wrap in cards and dialogs. */
+dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
+.lesson-story h3 { margin:16px 0 6px; }
+.lesson-story p { margin:0 0 10px; }
+.lesson-story strong { margin:4px 0 2px; }
+.lesson-story details p { margin:6px 0; }
+.lesson-story details b { margin-right:4px; }
+.lesson-map .faint { opacity:.55; }

@@ -65,39 +65,37 @@
     <image href="lesson-map.svg" width="320" height="180"/>
     <defs><marker id="lesson-arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 6 3 0 6Z" fill="#43745a"/></marker></defs>
     <g data-phase="0">
-      <circle cx="117" cy="32" r="3"/><text x="125" y="30">서울 · 교육부 등</text>
-      <circle cx="118" cy="49" r="3"/><text x="126" y="56">과천 · 국토해양부 등</text>
+      <circle cx="117" cy="32" r="3"/><text x="125" y="30">서울 · 교육부</text>
+      <circle cx="111" cy="39" r="3"/><text x="104" y="43" text-anchor="end">여의도 · 국회</text>
       <circle class="reference" cx="142" cy="151" r="3"/><text x="151" y="155">세종</text>
     </g>
     <g data-phase="1" hidden>
-      <path class="route" d="M117 36 Q82 88 137 146" marker-end="url(#lesson-arrow)"/>
-      <path class="route" d="M119 53 Q151 96 143 144" marker-end="url(#lesson-arrow)"/>
-      <circle cx="117" cy="32" r="3"/><text x="125" y="34">서울</text>
-      <circle cx="118" cy="49" r="3"/><text x="126" y="56">과천</text>
-      <circle cx="142" cy="151" r="4"/><text x="151" y="149">세종 · 교육부</text><text x="151" y="164">국토교통부 등</text>
+      <path class="route" d="M119 36 Q158 88 143 144" marker-end="url(#lesson-arrow)"/>
+      <circle class="reference" cx="117" cy="32" r="3"/><text x="125" y="30">서울</text>
+      <circle cx="111" cy="39" r="3"/><text x="104" y="43" text-anchor="end">여의도 · 국회</text>
+      <circle cx="142" cy="151" r="4"/><text x="151" y="155">세종 · 교육부</text>
     </g>
     <g data-phase="2" hidden>
-      <path class="route planned" d="M121 37 Q160 90 145 145" marker-start="url(#lesson-arrow)" marker-end="url(#lesson-arrow)"/>
-      <circle cx="117" cy="32" r="3"/><text x="125" y="30">서울 · 국회와 남은 부처</text>
-      <circle cx="142" cy="151" r="4"/><text x="151" y="149">세종 · 옮긴 부처</text>
-      <text x="166" y="96">오가는 출장</text>
+      <path class="route planned" d="M114 44 Q90 98 138 146" marker-start="url(#lesson-arrow)" marker-end="url(#lesson-arrow)"/>
+      <circle cx="111" cy="39" r="3"/><text x="104" y="43" text-anchor="end">여의도 · 국회</text>
+      <circle cx="142" cy="151" r="4"/><text x="151" y="155">세종 · 교육부</text>
+      <text x="34" y="100">오가는 출장</text>
     </g>
     <g data-phase="3" hidden>
-      <path class="route planned" d="M117 36 Q82 88 137 146" marker-end="url(#lesson-arrow)"/>
-      <path class="route planned" d="M119 53 Q151 96 143 144" marker-end="url(#lesson-arrow)"/>
-      <circle cx="111" cy="37" r="3"/><text x="104" y="40" text-anchor="end">여의도 · 국회</text>
-      <circle cx="118" cy="30" r="3"/><text x="126" y="28">서울 · 부처 4곳</text>
-      <circle cx="118" cy="49" r="3"/><text x="126" y="56">과천 · 법무부</text>
+      <path class="route planned" d="M114 44 Q90 98 138 146" marker-end="url(#lesson-arrow)"/>
+      <path class="route planned faint" d="M120 35 Q160 88 145 144" marker-end="url(#lesson-arrow)"/>
+      <circle cx="111" cy="39" r="3"/><text x="104" y="43" text-anchor="end">여의도 · 국회</text>
+      <circle cx="118" cy="30" r="3"/><text x="126" y="28">서울·과천 · 남은 부처</text>
       <circle class="reference" cx="142" cy="151" r="4"/><text x="151" y="155">세종 ?</text>
     </g>
   </svg>
   <div class="lesson-story" aria-live="polite">
-    <section data-phase="0"><h3>수도권에 모여 있던 나라의 기관</h3><p>예전에는 교육부 같은 행정부처 대부분이 서울과 경기도 과천에, 법을 만드는 국회는 서울 여의도에 있었습니다.</p><strong>나라의 중요한 기관이 한 지역에 모여 있으면 어떤 점이 좋고, 어떤 문제가 생길까요?</strong></section>
-    <section data-phase="1" hidden><h3>왜 지방으로 옮길까?</h3><p>국토해양부(지금의 국토교통부)는 2012년, 교육부는 2013년에 세종으로 옮겼습니다. 2025년 말에는 해양수산부가 부산으로 옮겼습니다. 두 부처가 옮겨 간 방향을 화살표로 따라가 보세요.</p><strong>정부는 왜 행정부처를 지방으로 옮겼을까요?</strong><details><summary>이전 목적 살펴보기</summary><p>사람과 일자리가 수도권에 지나치게 몰리는 것을 줄이고, 다른 지역에도 발전의 중심을 만들어 나라 전체가 고르게 발전하도록(국가균형발전) 하려는 것입니다.</p></details></section>
-    <section data-phase="2" hidden><h3>옮기면 어떤 일이 생길까?</h3><p>옮긴 부처는 세종에, 국회와 일부 부처는 서울에 있습니다. 그래서 공무원들이 회의나 보고를 위해 두 도시를 자주 오갑니다.</p><strong>기관을 옮기면 어떤 좋은 점과 어려운 점이 생길까요?</strong><details><summary>여러 입장에서 생각하기</summary><p><b>좋은 점</b> 세종에 사람과 일자리가 늘어 새로운 도시가 자랍니다. 수도권의 집중을 덜 수 있습니다.<br><b>어려운 점</b> 기관이 서울과 세종으로 나뉘어 출장 시간과 비용이 듭니다. 공무원과 가족이 이사해야 하고, 새 청사를 짓는 데 큰 비용이 듭니다.</p></details></section>
-    <section data-phase="3" hidden><h3>아직 수도권에 남은 기관</h3><p>2026년 11월 현재 외교부·통일부·국방부·성평등가족부는 서울에, 법무부는 과천에, 국회 본회의장은 여의도에 있습니다. 정부는 2026년 10월 이 부처들을 포함한 44개 기관을 2027~2031년에 세종으로 옮기는 계획을 발표했지만, 지금의 법은 다섯 부처를 이전 제외 기관으로 정해 두어 법을 고쳐야 합니다. 국회는 세종에 의사당을 짓는 계획을 추진하고 있습니다.</p><strong>남은 부처와 국회도 옮겨야 할까요? 기관마다 답이 다를 수 있을까요?</strong><details><summary>두 입장에서 생각하기</summary><p><b>옮겨야 한다</b> 기관이 한곳에 모이면 협의가 쉬워지고 오가는 시간과 비용이 줄어듭니다. 균형발전 효과도 커질 수 있습니다.<br><b>신중해야 한다</b> 외교부는 외국 대사관이 모인 서울과 가까워야 하고, 국방부는 안보와 군 지휘 체계와 이어져 있습니다. 국회 이전은 수도에 관한 헌법 문제와도 얽혀 있고, 큰 비용이 듭니다.</p></details><p class="lesson-task">내 주장(옮겨야 한다 / 옮기지 말아야 한다)을 정하고, 앞 단계에서 찾은 근거를 두 가지 이상 들어 말해 보세요.</p></section>
+    <section data-phase="0"><h3>수도권에 모여 있던 교육부와 국회</h3><p>예전에는 교육 정책을 맡는 교육부가 서울에, 법을 만드는 국회가 서울 여의도에 있었습니다. 다른 행정부처도 대부분 서울과 경기도 과천에 모여 있었습니다.</p><strong>나라의 중요한 기관이 한 지역에 모여 있으면 어떤 점이 좋고, 어떤 문제가 생길까요?</strong></section>
+    <section data-phase="1" hidden><h3>왜 지방으로 옮길까?</h3><p>교육부는 2013년에 서울에서 세종으로 옮겼습니다. 이 무렵 여러 행정부처가 세종으로 옮겨 갔지만, 국회는 여의도에 그대로 남았습니다.</p><p>교육부가 옮겨 간 방향을 화살표로 따라가 보세요.</p><strong>정부는 왜 교육부 같은 행정부처를 지방으로 옮겼을까요?</strong><details><summary>이전 목적 살펴보기</summary><p>사람과 일자리가 수도권에 지나치게 몰리는 것을 줄이고, 다른 지역에도 발전의 중심을 만들어 나라 전체가 고르게 발전하도록(국가균형발전) 하려는 것입니다.</p></details></section>
+    <section data-phase="2" hidden><h3>옮기면 어떤 일이 생길까?</h3><p>국회는 교육부가 나랏돈을 알맞게 쓰는지, 교육 정책을 제대로 펴는지 살핍니다. 그래서 교육부 장관과 공무원들은 국회의 회의와 질문에 답하려고 세종과 여의도를 자주 오갑니다.</p><strong>교육부는 세종에, 국회는 서울에 있으면 어떤 좋은 점과 어려운 점이 생길까요?</strong><details><summary>여러 입장에서 생각하기</summary><p><b>좋은 점</b> 세종에 사람과 일자리가 늘어 새로운 도시가 자랍니다. 수도권에 몰린 기능을 나눌 수 있습니다.</p><p><b>어려운 점</b> 오가는 데 시간과 비용이 듭니다. 공무원과 가족이 이사해야 하고, 새 청사를 짓는 데 큰 비용이 듭니다.</p></details></section>
+    <section data-phase="3" hidden><h3>아직 수도권에 남은 기관</h3><p>2026년 11월 현재 국회 본회의장은 여의도에 있습니다. 국회는 세종에 의사당을 지어 일부 위원회 등이 세종에서도 일할 수 있게 하는 계획을 추진하고 있습니다.</p><p>외교부·통일부·국방부·성평등가족부(서울)와 법무부(과천)도 아직 수도권에 있습니다. 정부는 2026년 10월 이 부처들을 2027~2031년에 세종으로 옮기는 계획을 발표했지만, 지금의 법은 이 부처들을 이전 제외 기관으로 정해 두어 법을 고쳐야 합니다.</p><strong>국회와 남은 부처도 세종으로 옮겨야 할까요?</strong><details><summary>두 입장에서 생각하기</summary><p><b>옮겨야 한다</b> 국회와 교육부 같은 부처가 가까이 있으면 오가는 시간과 비용이 줄고 협의가 쉬워집니다. 균형발전 효과도 커질 수 있습니다.</p><p><b>신중해야 한다</b> 국회 이전은 수도에 관한 헌법 문제와도 얽혀 있습니다. 외교부·국방부처럼 서울 가까이 있어야 하는 업무도 있고, 옮기는 데 큰 비용이 듭니다.</p></details><p class="lesson-task">내 주장(옮겨야 한다 / 옮기지 말아야 한다)을 정하고, 앞 단계에서 찾은 근거를 두 가지 이상 들어 말해 보세요.</p></section>
   </div>
-  <details class="lesson-sources"><summary>수업 자료 출처</summary><a href="https://www.molit.go.kr/USR/NEWS/m_71/dtl.jsp?id=95071333" target="_blank" rel="noopener">국토해양부 이전 자료</a><a href="https://naacc.go.kr/WEB/contents/N3050100000.do?id=53865&amp;schM=view" target="_blank" rel="noopener">행복청 2단계 이전 자료</a><a href="https://theme.archives.go.kr/next/govpo/detail.do?policySeq=111" target="_blank" rel="noopener">국가기록원 균형발전 정책 자료</a><a href="https://www.korea.kr/multi/visualNewsView.do?newsId=148973606" target="_blank" rel="noopener">2차 중앙행정기관 이전 추진(정책브리핑)</a><a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=014521" target="_blank" rel="noopener">국회세종의사당 설치·운영 규칙</a></details>
+  <details class="lesson-sources"><summary>수업 자료 출처</summary><a href="https://naacc.go.kr/WEB/contents/N3050100000.do?id=53865&amp;schM=view" target="_blank" rel="noopener">행복청 2단계 이전 자료</a><a href="https://theme.archives.go.kr/next/govpo/detail.do?policySeq=111" target="_blank" rel="noopener">국가기록원 균형발전 정책 자료</a><a href="https://www.korea.kr/multi/visualNewsView.do?newsId=148973606" target="_blank" rel="noopener">2차 중앙행정기관 이전 추진(정책브리핑)</a><a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=014521" target="_blank" rel="noopener">국회세종의사당 설치·운영 규칙</a></details>
 </dialog>
 <dialog id="ministry-card" aria-labelledby="ministry-title">
   <div class="modal-title"><h2 id="ministry-title"></h2><button id="ministry-close" type="button" aria-label="부처 카드 닫기">닫기</button></div>
