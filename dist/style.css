@@ -323,3 +323,9 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .org-grid details { height:100%; }
 .org-grid .org-desc { margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#36503f; text-wrap:pretty; }
 .org-grid details[open] { grid-column:auto; }
+/* Neighbouring provinces: grey, and a way to the national map. */
+.neighbour { fill:#cfd2cb; fill-opacity:.72; stroke:#fafaf6; stroke-width:1.2px; vector-effect:non-scaling-stroke; cursor:pointer; transition:fill-opacity .2s; }
+.neighbour:hover { fill-opacity:.95; }
+.neighbour:focus { outline:none; }
+.neighbour:focus-visible { stroke:#4877ac; stroke-width:2.5px; }
+.neighbour-label { font-weight:700; fill:#7a8078; stroke:#f3f4ef; paint-order:stroke; }

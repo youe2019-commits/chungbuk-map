@@ -54,6 +54,20 @@ regions.forEach(({name,path,label},i)=>{
   const labelNode=element($('labels'),'text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'map-label'});
   labelNode.textContent=name;labels.set(name,labelNode);
 });
+// Neighbouring provinces in grey; pressing one opens the national map.
+const neighbourLayer=document.createElementNS(ns,'g');neighbourLayer.id='neighbour-layer';
+world.insertBefore(neighbourLayer,$('districts'));
+const neighbourLabels=[];
+const neighbourData=typeof neighbours==='object'?neighbours:[];
+for(const {name,path} of neighbourData){
+  element(neighbourLayer,'path',{d:path,class:'neighbour','fill-rule':'evenodd','data-neighbour':name,
+    role:'button',tabindex:0,'aria-label':name+' · 전국 지도 보기'});
+}
+const neighbourNames=element(neighbourLayer,'g',{'pointer-events':'none'});
+for(const {short,label:[x,y]} of neighbourData){
+  const text=element(neighbourNames,'text',{x,y,class:'neighbour-label','text-anchor':'middle','dominant-baseline':'central'});
+  text.textContent=short;neighbourLabels.push(text);
+}
 // Cheongju's four districts (구) appear over the city once school cards are shown there.
 const guLayer=document.createElementNS(ns,'g');guLayer.id='gu-layer';
 world.insertBefore(guLayer,$('labels'));
@@ -500,7 +514,8 @@ schoolToggle.onclick=()=>{
 function filterTypes(key){
   return key==='nationalMiddle'?[schoolTypes.nationalMiddle,schoolTypes.nationalHigh]:[schoolTypes[key]];
 }
-const typeInputs=Object.entries(schoolTypes).filter(([key])=>key!=='nationalHigh').map(([key,type])=>{
+const typeInputs=Object.entries(schoolTypes).filter(([key])=>key!=='nationalHigh')
+  .sort(([a],[b])=>(a==='nationalMiddle')-(b==='nationalMiddle')).map(([key,type])=>{
   const label=document.createElement('label');
   const input=document.createElement('input');
   input.type='checkbox'; input.value=key;
@@ -736,6 +751,7 @@ function draw(){
   });
   const guSize=Math.min(17,12+2*Math.log2(z));
   for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
+  for(const text of neighbourLabels){text.style.fontSize=(Math.min(15,11+2*Math.log2(z))/k)+'px';text.style.strokeWidth=(2.4/k)+'px'}
   $('zoom-range').value=z;
   $('zoom-range').setAttribute('aria-valuetext',Number(z.toFixed(2))+'배');
   if(annotationView){
@@ -951,7 +967,7 @@ gestureArea.addEventListener('pointerdown',e=>{
   tapTarget=null;
   if(!touches.size){
     start=position;
-    tapTarget=e.target.closest('[data-office],[data-gu],[data-region]');
+    tapTarget=e.target.closest('[data-office],[data-gu],[data-region],[data-neighbour]');
   }
   touches.set(e.pointerId,position);
   gestureArea.setPointerCapture(e.pointerId);
@@ -990,11 +1006,12 @@ gestureArea.addEventListener('lostpointercapture',e=>{
 // Commit selection on click so a newly revealed label cannot receive the same tap.
 // Keyboard and assistive-technology activations have no preceding pointer gesture.
 gestureArea.addEventListener('click',e=>{
-  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-gu],[data-region]'):pendingMapTap;
+  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-gu],[data-region],[data-neighbour]'):pendingMapTap;
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
   // A district (구) of Cheongju: show only its schools; pressing it again shows all of Cheongju.
   else if(target?.dataset.gu)toggleGu(target.dataset.gu);
+  else if(target?.dataset.neighbour)$('nation-toggle').click();
   // Clicking the already selected district again returns to the whole-province view.
   else if(target?.dataset.region===selected){
     // Clicking the selected district again shows the whole province, centred on that district.
@@ -1007,6 +1024,11 @@ gestureArea.addEventListener('click',e=>{
   else if(target?.dataset.region)choose(target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
+  if(e.target.dataset.neighbour && (e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    if(!e.repeat)$('nation-toggle').click();
+    return;
+  }
   if(e.target.dataset.gu && (e.key==='Enter'||e.key===' ')){
     e.preventDefault();
     if(!e.repeat)toggleGu(e.target.dataset.gu);
