@@ -352,3 +352,24 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .nowrap { white-space:nowrap; }
 @media(max-width:400px){ .compare-tabs button { font-size:13px; padding:0 4px; } }
 #gu-layer g[hidden] { display:none; }
+/* Institution cards: local autonomy explainer and organisation chart. */
+.autonomy { margin:14px 0 8px; padding:12px; border-radius:10px; background:#f3f6ef; }
+.autonomy h3 { margin:0 0 6px; font-size:15px; }
+.autonomy p { margin:6px 0; font-size:14px; line-height:1.55; text-wrap:pretty; }
+.autonomy-map { display:grid; gap:8px; margin:10px 0; }
+.autonomy-people { position:relative; justify-self:center; padding:6px 14px; border-radius:999px; background:var(--pine); color:white; font-weight:700; font-size:14px; text-align:center; }
+.autonomy-people small { display:block; font-size:11px; font-weight:500; opacity:.85; }
+.autonomy-row { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.autonomy-row div { padding:7px 4px; border:1px solid #c9d6cc; border-radius:8px; background:white; text-align:center; }
+.autonomy-row div.current { border:2px solid var(--pine); background:#e7f0e9; }
+.autonomy-row b { display:block; font-size:14px; }
+.autonomy-row span { display:block; margin-top:2px; font-size:11px; color:#5b6a60; line-height:1.35; }
+.autonomy-links { margin:8px 0; padding:0; list-style:none; display:grid; gap:6px; }
+.autonomy-links li { font-size:13.5px; line-height:1.55; text-wrap:pretty; }
+.autonomy-links b { display:block; color:#24523d; }
+#office-org { margin:8px 0 12px; }
+#office-org summary { cursor:pointer; min-height:40px; display:flex; align-items:center; padding:0 12px; border:1px solid #aabdab; border-radius:8px; background:#f8fbf5; color:#275641; font-size:14px; font-weight:650; }
+#office-org .org-chart { margin:12px 0 6px; }
+#office-org .org-grid li strong { font-size:13.5px; }
+#office-org .org-grid li span { font-size:12px; line-height:1.45; }
+#office-description { white-space:pre-line; }

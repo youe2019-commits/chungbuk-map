@@ -377,11 +377,11 @@ const offices = [
   {name:'양업고등학교', specializedHigh:true, region:'청주시', schoolType:schoolTypes.privateHigh, short:'양업고', kind:'사립고', icon:'book', lat:36.671027, lon:127.3473567,
    address:'청주시 흥덕구 옥산면 환희길 277', description:'가톨릭 대안교육을 바탕으로 보통교과와 체험 중심 활동을 함께 배우며 자율성과 공동체 생활 역량을 기릅니다.', url:'https://www.yangeob.hs.kr/'},
   {name:'충청북도청', region:'청주시', short:'도청', kind:'도 행정', icon:'civic', color:'#36634f', lat:36.6356178, lon:127.4906769,
-   address:'청주시 상당구 상당로 82', description:'도지사가 이끄는 도청은 복지·교통·환경 등 도민의 생활에 필요한 사업을 집행합니다. 예를 들어 홍수에 대비해 지방하천의 제방을 보강하려면, 도지사가 공사비를 예산안에 담아 도의회에 제출합니다. 도의회가 예산을 의결하면 도청은 그 범위에서 공사를 추진합니다.', url:'https://www.chungbuk.go.kr/'},
+   address:'청주시 상당구 상당로 82', description:'도민이 직접 뽑은 도지사가 이끄는 충북의 집행기관입니다. 도의회가 정한 조례와 예산에 따라 교통·복지·산업·환경처럼 도민의 생활에 필요한 일을 실제로 해 나갑니다.\n예를 들어 버스가 드문 농촌 마을에 부르면 오는 버스를 늘리려면, 도청이 계획을 세우고 비용을 예산안에 담아 도의회에 냅니다. 도의회가 의결하면 도청은 시·군과 함께 버스를 운행합니다.', url:'https://www.chungbuk.go.kr/'},
   {name:'충청북도의회', region:'청주시', short:'도의회', kind:'지방의회', icon:'assembly', color:'#916039', lat:36.6355019, lon:127.4929946,
-   address:'청주시 상당구 대성로 116', description:'도민이 뽑은 도의원들은 충북의 규칙인 조례를 만들고 고칩니다. 도지사와 교육감이 낸 예산안을 심의할 때는 “어느 하천의 제방이 가장 위험한가요?”, “어떤 학교의 급식실부터 고쳐야 하나요?”처럼 묻고 예산을 의결합니다. 이후 결산과 행정사무감사를 통해 도청과 교육청이 예산을 목적에 맞게 썼는지 살핍니다.', url:'https://council.chungbuk.kr/'},
+   address:'청주시 상당구 대성로 116', description:'도민이 뽑은 도의원 38명이 모인 충북의 의결기관입니다. 충북의 규칙인 조례를 만들고, 도청과 교육청이 낸 예산안을 심의해 의결하며, 그 돈을 제대로 썼는지 행정사무감사로 살핍니다.\n예를 들어 농촌 마을 버스 예산을 심의할 때 “어느 마을에 먼저 필요한가요?”라고 묻고, 다음 해에는 버스가 실제로 잘 다니는지 점검합니다.', url:'https://council.chungbuk.kr/'},
   {name:'충청북도교육청', region:'청주시', short:'교육청', kind:'교육행정', icon:'book', color:'#456b8a', lat:36.6066899, lon:127.479413,
-   address:'청주시 서원구 청남로 1929', description:'교육감이 이끄는 교육청은 학교 교육과 학생 복지, 학교 시설을 맡습니다. 예를 들어 여러 학교의 낡은 급식실을 고치려면, 교육감이 필요한 비용을 교육비 예산안에 담아 도의회에 제출합니다. 도의회가 예산을 의결하면 교육청은 학교와 함께 급식실 개선을 추진합니다.', url:'https://www.cbe.go.kr/cbe/'},
+   address:'청주시 서원구 청남로 1929', description:'도민이 직접 뽑은 교육감이 이끄는 교육 자치의 집행기관입니다. 도청과 따로 학교 교육과 선생님, 학교 시설과 급식 등을 맡습니다.\n예를 들어 학생이 적은 마을 학교에 통학 차량을 늘리려면, 교육감이 교육비 예산안을 도의회에 냅니다. 도의회 교육위원회가 심사하고 본회의에서 의결하면 교육청이 학교를 지원합니다.', url:'https://www.cbe.go.kr/cbe/'},
   {name:'매괴고등학교', region:'음성군', schoolType:schoolTypes.privateHigh, short:'매괴고', kind:'사립 고등학교', icon:'book', lat:37.1203437, lon:127.6405404,
    address:'음성군 감곡면 매괴길 10', description:'음성군 북쪽 감곡면에 있는 사립 일반고등학교입니다. 국어·수학·영어 등 보통교과와 선택과목을 공부하며 진학과 진로를 준비합니다.', url:'https://school.cbe.go.kr/maegoe-h/'},
   {name:'충북반도체고등학교', region:'음성군', schoolType:schoolTypes.publicHigh, short:'충북반도체고', kind:'공립 마이스터고', icon:'book', lat:36.9943672, lon:127.6063144,
@@ -475,6 +475,13 @@ function showOffice(office){
   $('office-title').textContent=office.name;
   $('office-icon').setAttribute('href','#ic-'+office.icon);
   $('office-description').textContent=office.description;
+  // The three institutions in 청주 show how local autonomy works and their own organisation chart.
+  const orgTemplate=document.getElementById('org-'+office.name);
+  $('office-org').hidden=!orgTemplate;
+  $('office-org').open=false;
+  $('office-org-body').replaceChildren(...(orgTemplate?[orgTemplate.content.cloneNode(true)]:[]));
+  $('office-extra').replaceChildren(...(orgTemplate?[$('local-autonomy').content.cloneNode(true)]:[]));
+  for(const box of $('office-extra').querySelectorAll('[data-org]')) box.classList.toggle('current',box.dataset.org===office.name);
   const stats=schoolStatistics[office.name];
   $('school-stats').hidden=!stats;
   if(stats){
