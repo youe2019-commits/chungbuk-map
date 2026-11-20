@@ -1414,3 +1414,52 @@ new ResizeObserver(()=>{dimensions();layoutRegionCards();draw()}).observe(map);
   new ResizeObserver(()=>{if(!pad.hidden){redraw();saveBox()}}).observe(pad);
   addEventListener('resize',()=>{if(!pad.hidden){placePad();redraw()}});
 })();
+
+// 학교 검색: 이름 일부를 입력하면 후보가 뜨고, 고르면 그 학교가 있는 시·군으로 이동해 학교 정보를 연다.
+(()=>{
+  const input=$('school-search'), results=$('school-search-results'), form=input.form;
+  const schools=officeMarkers.filter(marker=>marker.office.schoolType).map(marker=>marker.office);
+  const plain=text=>text.replace(/\s+/g,'').toLowerCase();
+  let matches=[], active=-1;
+  function close(){results.hidden=true;input.setAttribute('aria-expanded','false');active=-1;input.removeAttribute('aria-activedescendant')}
+  function render(){
+    const q=plain(input.value);
+    results.replaceChildren();
+    if(!q){matches=[];close();return}
+    matches=schools.filter(o=>plain(o.name).includes(q)||plain(o.short||'').includes(q))
+      .sort((a,b)=>(plain(b.name).startsWith(q)-plain(a.name).startsWith(q))||a.name.localeCompare(b.name,'ko')).slice(0,8);
+    active=matches.length?0:-1;
+    if(!matches.length){
+      const li=document.createElement('li');li.className='empty';li.textContent='찾는 학교가 없습니다.';results.append(li);
+    }
+    matches.forEach((office,i)=>{
+      const li=document.createElement('li');li.id='school-search-'+i;li.setAttribute('role','option');
+      const type=document.createElement('small');type.textContent=office.region+' · '+office.schoolType.label;type.style.color=markerColor(office);
+      li.append(office.name,type);
+      li.addEventListener('pointerdown',e=>e.preventDefault());
+      li.addEventListener('click',()=>go(office));
+      results.append(li);
+    });
+    mark();results.hidden=false;input.setAttribute('aria-expanded','true');
+  }
+  function mark(){
+    [...results.children].forEach((li,i)=>li.setAttribute('aria-selected',String(i===active)));
+    if(active>=0){input.setAttribute('aria-activedescendant','school-search-'+active);results.children[active]?.scrollIntoView({block:'nearest'})}
+  }
+  function go(office){
+    close();input.value='';input.blur();
+    if(!$('nation-view').hidden)$('fit').click();
+    choose(office.region);
+    showOffice(office);
+  }
+  input.addEventListener('input',render);
+  input.addEventListener('focus',()=>{if(input.value)render()});
+  input.addEventListener('blur',close);
+  input.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!matches.length)return;
+      e.preventDefault();active=(active+(e.key==='ArrowDown'?1:-1)+matches.length)%matches.length;mark();
+    }else if(e.key==='Escape'){close()}
+  });
+  form.addEventListener('submit',e=>{e.preventDefault();if(matches[active])go(matches[active])});
+})();
