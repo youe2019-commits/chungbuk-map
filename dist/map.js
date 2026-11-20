@@ -641,11 +641,12 @@ function updateDetailFavorite(name){
   button.textContent=favorites.has(name)?'❤️ 찜 해제':'♡ 찜하기';
   button.setAttribute('aria-pressed',String(favorites.has(name)));
 }
+function saveFavorites(){try { localStorage.setItem(favoritesKey,JSON.stringify([...favorites])); } catch {}}
 function toggleFavorite(name){
   if(!schoolMarkers.has(name))return;
   if(favorites.has(name)) favorites.delete(name);
   else favorites.add(name);
-  try { localStorage.setItem(favoritesKey,JSON.stringify([...favorites])); } catch {}
+  saveFavorites();
   markFavorite(name);
   if($('office-favorite').dataset.office===name) updateDetailFavorite(name);
   $('announce').textContent=name+(favorites.has(name)?' 찜했습니다.':' 찜을 해제했습니다.');
@@ -702,19 +703,39 @@ function openSchoolList(onlySaved){
   const list=$('school-list');
   list.replaceChildren();
   $('school-list-title').textContent=onlySaved?'찜한 학교 목록':selected+' 학교 목록';
-  for(const {office} of schoolsNorthFirst){
-    if(onlySaved ? !favorites.has(office.name) : office.region!==selected || !matchesSchoolLevel(office))continue;
+  // 찜 목록은 사용자가 정한 순서(찜한 순서)로 보여 주고, 순서 바꾸기와 삭제를 할 수 있다.
+  const rows=onlySaved?[...favorites].map(name=>schoolMarkers.get(name)).filter(Boolean):schoolsNorthFirst;
+  rows.forEach(({office},index)=>{
+    if(!onlySaved && (office.region!==selected || !matchesSchoolLevel(office)))return;
     const item=document.createElement('li'), button=document.createElement('button');
     const type=document.createElement('small');
     type.textContent=onlySaved?office.region+' · '+office.schoolType.label:office.schoolType.label;
     type.style.color=markerColor(office);
     button.append(office.name,type);
+    button.className='school-open';
     button.onclick=()=>{schoolListDialog.close();showOffice(office)};
     item.append(button);list.append(item);
-  }
-  $('school-list-note').textContent=onlySaved && !list.children.length
-    ? '아직 찜한 학교가 없습니다. 지도에서 학교 카드를 길게 눌러 보세요.' : '북쪽에서 남쪽 순서';
-  schoolListDialog.showModal();
+    if(!onlySaved)return;
+    const tools=document.createElement('span');tools.className='favorite-tools';
+    const tool=(label,text,action,disabled)=>{
+      const b=document.createElement('button');b.type='button';b.textContent=text;b.setAttribute('aria-label',office.name+' '+label);
+      b.disabled=disabled;b.onclick=()=>{action();openSchoolList(true);list.querySelector(`[data-tool="${label}"][data-name="${office.name}"]`)?.focus()};
+      b.dataset.tool=label;b.dataset.name=office.name;tools.append(b);
+    };
+    const move=step=>{
+      const names=[...favorites];
+      [names[index],names[index+step]]=[names[index+step],names[index]];
+      favorites=new Set(names);saveFavorites();
+    };
+    tool('위로','▲',()=>move(-1),index===0);
+    tool('아래로','▼',()=>move(1),index===favorites.size-1);
+    tool('삭제','삭제',()=>toggleFavorite(office.name),false);
+    item.append(tools);
+  });
+  $('school-list-note').textContent=onlySaved
+    ? (list.children.length?'▲▼로 순서를 바꾸고, 삭제로 찜을 해제합니다.':'아직 찜한 학교가 없습니다. 지도에서 학교 카드를 길게 눌러 보세요.')
+    : '북쪽에서 남쪽 순서';
+  if(!schoolListDialog.open)schoolListDialog.showModal();
 }
 $('show-school-list').onclick=()=>openSchoolList(false);
 $('favorites-list').onclick=()=>openSchoolList(true);
@@ -799,9 +820,13 @@ function layoutSchools(cards){
     const name=marker.office.short;
     const padding=marker.office.schoolType?8:32;
     const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specialLabel?8:0)));
-    const cardX=column===0?left:right-width;
+    // 찜한 학교만 볼 때는 카드를 화면 끝이 아니라 학교 점 가까이에 둔다.
+    const near=favoritesOnly?Math.min(42,(right-left)*.08):0;
+    const cardX=!near?(column===0?left:right-width)
+      :column===0?Math.max(left,Math.min(x-near-width,right-width)):Math.min(right-width,Math.max(x+near,left));
     const cardEdge=cardX+(column===0?width:0);
-    const elbow=cardEdge+(column===0?1:-1)*Math.min(40,Math.max(14,(right-left)*.055));
+    const elbow=near?cardEdge+(x-cardEdge)/2
+      :cardEdge+(column===0?1:-1)*Math.min(40,Math.max(14,(right-left)*.055));
     marker.line.setAttribute('d',`M${x},${y} L${elbow},${rowY} H${cardEdge}`);
     marker.title.textContent=name;
     marker.button.style.width=width+'px';
@@ -1174,7 +1199,13 @@ $('fit').onclick=()=>{
 // Track the SVG and the overlaid label buttons as a single gesture surface.
 const gestureArea=$('area');
 const touches=new Map();
-let start=[], tapTarget=null, pendingMapTap=null, favoriteTimer;
+let start=[], tapTarget=null, pendingMapTap=null, favoriteTimer, pressedCard=null;
+// 길게 누르는 동안 하트가 커지고, 찜이 되면 제자리 크기로 작아진다(해제면 사라진다).
+function cancelPress(){
+  clearTimeout(favoriteTimer);
+  pressedCard?.classList.remove('pressing');
+  pressedCard=null;
+}
 gestureArea.addEventListener('contextmenu',e=>{
   if(e.target.closest('.school-marker') || tapTarget?.matches('.school-marker')) e.preventDefault();
 });
@@ -1185,7 +1216,7 @@ gestureArea.addEventListener('wheel',e=>{e.preventDefault();zoom(Math.exp(-Math.
 gestureArea.addEventListener('pointerdown',e=>{
   if(e.button!==0)return;
   const position=point(e);
-  clearTimeout(favoriteTimer);
+  cancelPress();
   pendingMapTap=null;
   tapTarget=null;
   if(!touches.size){
@@ -1193,10 +1224,20 @@ gestureArea.addEventListener('pointerdown',e=>{
     tapTarget=e.target.closest('[data-office],[data-gu],[data-region],[data-neighbour]');
     if(tapTarget?.matches('.school-marker')){
       const card=tapTarget;
+      card.classList.remove('heart-in','heart-out');
+      card.classList.add('pressing');
+      pressedCard=card;
       favoriteTimer=setTimeout(()=>{
         tapTarget=null;
-        if(!card.hidden && $('nation-view').hidden) toggleFavorite(card.dataset.office);
-      },550);
+        card.classList.remove('pressing');
+        pressedCard=null;
+        if(!card.hidden && $('nation-view').hidden){
+          toggleFavorite(card.dataset.office);
+          const done=card.classList.contains('is-favorite')?'heart-in':'heart-out';
+          card.classList.add(done);
+          setTimeout(()=>card.classList.remove(done),450);
+        }
+      },650);
     }
   }
   touches.set(e.pointerId,position);
@@ -1215,7 +1256,7 @@ gestureArea.addEventListener('pointermove',e=>{
     zoom(dist(now,other)/Math.max(dist(old,other),1),middle(old,other),middle(now,other));
   }else{
     if(tapTarget && dist(start,now)<=5)return;
-    clearTimeout(favoriteTimer);
+    cancelPress();
     tapTarget=null;
     center[0]-=(now[0]-old[0])/(base*z);
     center[1]-=(now[1]-old[1])/(base*z);
@@ -1224,7 +1265,7 @@ gestureArea.addEventListener('pointermove',e=>{
 });
 function release(e){
   if(!touches.delete(e.pointerId))return;
-  clearTimeout(favoriteTimer);
+  cancelPress();
   if(touches.size)return;
   map.classList.remove('dragging');
   if(e.type==='pointerup' && dist(start,point(e))<=5)pendingMapTap=tapTarget;

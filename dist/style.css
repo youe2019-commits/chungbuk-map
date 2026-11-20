@@ -424,3 +424,20 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
   .header-actions .info { padding-inline:5px; font-size:11px; }
   .brand { gap:4px; white-space:nowrap; }
 }
+/* 길게 눌러 찜하기: 하트가 커졌다가 등록되면 작아짐 */
+.school-marker.pressing > span, .school-marker.heart-in > span, .school-marker.heart-out > span { position:relative; }
+.school-marker.pressing > span::after, .school-marker.heart-in > span::after, .school-marker.heart-out > span::after {
+  content:"❤️" / ""; position:absolute; top:0; right:0; font-size:12px; line-height:1; pointer-events:none; transform-origin:center;
+}
+.school-marker.pressing > span::after { animation:heart-grow .5s ease-in .15s both; }
+.school-marker.heart-in > span::after { animation:heart-settle .4s cubic-bezier(.3,1.5,.6,1) both; }
+.school-marker.heart-out > span::after { animation:heart-leave .4s ease-in both; }
+@keyframes heart-grow { from { transform:translate(25%,-40%) scale(.5); opacity:0 } to { transform:translate(25%,-40%) scale(2.4); opacity:1 } }
+@keyframes heart-settle { from { transform:translate(25%,-40%) scale(2.4) } to { transform:translate(25%,-40%) scale(1) } }
+@keyframes heart-leave { from { transform:translate(25%,-40%) scale(2.4); opacity:1 } to { transform:translate(25%,-40%) scale(0); opacity:0 } }
+/* 찜한 학교 목록: 순서 바꾸기·삭제 */
+#school-list li { display:flex; align-items:center; gap:4px; }
+#school-list .school-open { flex:1; min-width:0; gap:8px; }
+.favorite-tools { flex:none; display:flex; gap:3px; }
+#school-list .favorite-tools button { width:auto; min-width:34px; min-height:34px; padding:0 6px; justify-content:center; border:1px solid var(--line); border-radius:7px; font-size:12px; }
+#school-list .favorite-tools button:last-child { color:#b3362c; }
