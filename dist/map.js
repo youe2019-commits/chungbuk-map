@@ -56,9 +56,15 @@ const neighbourLayer=document.createElementNS(ns,'g');neighbourLayer.id='neighbo
 world.insertBefore(neighbourLayer,$('districts'));
 const neighbourLabels=[];
 const neighbourData=typeof neighbours==='object'?neighbours:[];
+// 서울·과천·세종은 누르면 그곳에 있는 행정부처를 학교처럼 점과 카드로 보여 준다.
+const ministryAreaNames=['서울특별시','과천시','세종특별자치시'];
+const ministryAreaPaths={};
 for(const {name,path} of neighbourData){
+  const ministry=ministryAreaNames.includes(name);
+  if(ministry) ministryAreaPaths[name]=path;
   element(neighbourLayer,'path',{d:path,class:'neighbour','fill-rule':'evenodd','data-neighbour':name,
-    role:'button',tabindex:0,'aria-label':name+' · 전국 지도 보기'});
+    ...(ministry?{'data-ministry-area':name}:{}),
+    role:'button',tabindex:0,'aria-label':name+(ministry?' · 행정부처 보기':' · 전국 지도 보기')});
 }
 const neighbourNames=element(neighbourLayer,'g',{'pointer-events':'none'});
 for(const {short,label:[x,y]} of neighbourData){
@@ -67,14 +73,30 @@ for(const {short,label:[x,y]} of neighbourData){
 }
 // 경기도 시·군 경계와 이름 (회색 지역 위 얇은 선, 누르면 아래 경기도로 전달)
 // 서울 이남에서도 성남·수원·화성 서쪽의 시·군은 회색 도 영역으로만 표시한다.
-const westernCities=new Set(['부천시','광명시','시흥시','안산시','안양시','군포시','의왕시','과천시']);
+const westernCities=new Set(['부천시','광명시','시흥시','안산시','안양시','군포시','의왕시','하남시','양평군']);
 const seoulY=neighbourData.find(region=>region.name==='서울특별시')?.label[1];
 const cityData=typeof gyeonggiCities==='object'
   ? gyeonggiCities.filter(city=>city.label[1]>seoulY && !westernCities.has(city.name))
   : [];
+const gwacheon=cityData.find(city=>city.name==='과천시');
+if(gwacheon) ministryAreaPaths['과천시']=gwacheon.path;
+// 세 지역은 회색을 유지하되 지형 음영을 입힌다(전국 지형 지도에서 음영만 뽑은 이미지).
+const areaTerrain={'서울특별시':['area-seoul.webp',-299,-327,249,206],'과천시':['area-gwacheon.webp',-185,-156,56,55],'세종특별자치시':['area-sejong.webp',-89,378,170,242]};
+const areaShade=element(neighbourLayer,'g',{class:'area-terrain','pointer-events':'none'});
+for(const [name,[href,x,y,width,height]] of Object.entries(areaTerrain)){
+  if(!ministryAreaPaths[name])continue;
+  const id='clip-'+href.replace('.webp','');
+  element(element(areaShade,'clipPath',{id}),'path',{d:ministryAreaPaths[name]});
+  element(areaShade,'image',{href:href+'?v=20261120-1420',x,y,width,height,preserveAspectRatio:'none','clip-path':`url(#${id})`});
+}
+const areaOutlines=new Map();
+for(const name of ministryAreaNames) if(ministryAreaPaths[name])
+  areaOutlines.set(name,element(areaShade,'path',{d:ministryAreaPaths[name],class:'area-outline'}));
 const cityLayer=element(neighbourLayer,'g',{class:'neighbour-cities','pointer-events':'none'});
 const cityLabels=[];
-for(const {path} of cityData) element(cityLayer,'path',{d:path});
+for(const {name,path} of cityData) element(cityLayer,'path',name==='과천시'
+  ?{d:path,class:'ministry-city','data-ministry-area':name,'pointer-events':'all',role:'button',tabindex:0,'aria-label':'과천시 · 행정부처 보기'}
+  :{d:path});
 for(const {name,label:[x,y]} of cityData){
   const text=element(cityLayer,'text',{x,y,class:'city-name','text-anchor':'middle','dominant-baseline':'central'});
   text.textContent=name;cityLabels.push(text);
@@ -581,7 +603,13 @@ function showOffice(office){
   favoriteButton.hidden=!office.schoolType;
   favoriteButton.dataset.office=office.name;
   if(office.schoolType) updateDetailFavorite(office.name);
-  $('office-address').textContent='충청북도 '+office.address;
+  $('office-address').textContent=office.ministry?office.address:'충청북도 '+office.address;
+  if(office.name==='교육부' && office.ministry){
+    const more=document.createElement('button');
+    more.type='button';more.className='detail-open';more.textContent='교육부 조직 상세보기';
+    more.onclick=()=>$('moe-org').showModal();
+    $('office-extra').append(more);
+  }
   $('office-link').href=office.url;
   card.showModal();
 }
@@ -591,15 +619,31 @@ $('office-card').addEventListener('click',event=>{
   const box=event.currentTarget.getBoundingClientRect();
   if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)event.currentTarget.close();
 });
+// 서울·과천·세종의 행정부처(전국 지도 부처 카드와 같은 부). 위치는 각 청사 건물 기준.
+const ministryColor='#2f6fa8';
+for(const [name,region,lat,lon,address,place,description,url] of [
+  ['외교부','서울특별시',37.5729,126.9748,'서울특별시 종로구 사직로8길 60','외교부 청사','다른 나라와 협상하고 해외에 있는 우리 국민을 보호합니다.','https://www.mofa.go.kr'],
+  ['통일부','서울특별시',37.5757,126.9751,'서울특별시 종로구 세종대로 209','정부서울청사','남북 관계와 교류, 통일 준비에 관한 정책을 마련합니다.','https://www.unikorea.go.kr'],
+  ['성평등가족부','서울특별시',37.5749,126.9758,'서울특별시 종로구 세종대로 209','정부서울청사','성평등 정책을 마련하고 청소년과 다양한 가족을 지원합니다.','https://www.mogef.go.kr'],
+  ['국방부','서울특별시',37.5365,126.9775,'서울특별시 용산구 이태원로 22','국방부 청사','나라를 지키는 데 필요한 국방 정책을 세우고 군을 운영합니다.','https://www.mnd.go.kr'],
+  ['법무부','과천시',37.4296,126.9893,'경기도 과천시 관문로 47','정부과천청사','범죄를 예방하고 교정 시설과 출입국 제도를 운영합니다.','https://www.moj.go.kr'],
+  ['교육부','세종특별자치시',36.4996,127.2549,'세종특별자치시 갈매로 408','정부세종청사 14동','초·중·고 교육과 대학교육에 관한 국가 정책을 마련합니다.','https://www.moe.go.kr'],
+  ['재정경제부','세종특별자치시',36.5052,127.2648,'세종특별자치시 갈매로 477','정부세종청사 4동','나라의 경제정책을 조정하고 세금 제도를 마련합니다.','https://www.moef.go.kr'],
+  ['행정안전부','세종특별자치시',36.5031,127.2622,'세종특별자치시 도움6로 42','정부세종청사 중앙동','지방자치단체를 지원하고 국가의 재난 안전 관리를 조정합니다.','https://www.mois.go.kr'],
+  ['보건복지부','세종특별자치시',36.5010,127.2597,'세종특별자치시 도움4로 13','정부세종청사 10동','국민의 건강을 돌보고 의료와 사회복지 제도를 마련합니다.','https://www.mohw.go.kr'],
+  ['국토교통부','세종특별자치시',36.5042,127.2634,'세종특별자치시 도움6로 11','정부세종청사 6동','주택과 도시, 도로와 철도 등 국토·교통 정책을 마련합니다.','https://www.molit.go.kr'],
+  ['문화체육관광부','세종특별자치시',36.4987,127.2558,'세종특별자치시 갈매로 388','정부세종청사 15동','문화예술 활동과 체육, 관광을 지원합니다.','https://www.mcst.go.kr'],
+]) offices.push({name,region,ministry:true,short:name,kind:'행정부처 · '+place,icon:'civic',color:ministryColor,lat,lon,address,description,url});
 const officeMarkers=offices.map(office=>{
   const layer=$('office-lines');
   const line=element($('connectors'),'path',{
-    class:office.schoolType?'office-line school-connector':'office-line',
+    class:office.schoolType||office.ministry?'office-line school-connector':'office-line',
     stroke:markerColor(office)
   });
-  const dot=element(layer,'circle',{class:'office-dot',r:office.schoolType?5:3.4,fill:markerColor(office),'pointer-events':'all','data-office':office.name});
+  const dot=element(layer,'circle',{class:'office-dot',r:office.schoolType||office.ministry?5:3.4,fill:markerColor(office),'pointer-events':'all','data-office':office.name});
   const button=document.createElement('button');
   button.className='office-marker';
+  if(office.ministry) button.classList.add('ministry-marker');
   if(office.schoolType){
     button.classList.add('school-marker');
     button.classList.toggle('specialized-high',Boolean(office.specialLabel));
@@ -815,7 +859,7 @@ function layoutSchools(cards){
     floor=rowY;
     nextFree[column]=rowY+pitch;
     const name=marker.office.short;
-    const padding=marker.office.schoolType?8:32;
+    const padding=marker.office.schoolType||marker.office.ministry?8:32;
     const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specialLabel?8:0)));
     // 찜한 학교만 볼 때는 카드를 화면 끝이 아니라 학교 점 가까이에 둔다.
     const near=favoritesOnly?Math.min(42,(right-left)*.08):0;
@@ -849,7 +893,7 @@ function layoutRegionCards(){
     const {office}=marker;
     const show=favoritesOnly
       ? (!selected || office.region===selected) && favorites.has(office.name)
-      : office.region===selected && (office.schoolType ? matchesSchoolLevel(office) : showInstitutions);
+      : office.region===selected && (office.schoolType ? matchesSchoolLevel(office) : office.ministry || showInstitutions);
     marker.button.hidden=!show;
     marker.line.style.display=marker.dot.style.display=show?'':'none';
     if(show)visible.push({marker,column:0});
@@ -858,7 +902,7 @@ function layoutRegionCards(){
   empty.hidden=!favoritesOnly || visible.length>0;
   if(!empty.hidden) empty.textContent=(selected?selected+'에':'지도에')+' 찜한 학교가 없습니다.';
   if(!visible.length){annotationView=null;return}
-  const bounds=selected?regions.find(region=>region.name===selected).bounds:[[0,0],[W,H]];
+  const bounds=selected?areaBounds(selected):[[0,0],[W,H]];
   const scale=selected?base*fittedZoom(bounds):base;
   const midX=(bounds[0][0]+bounds[1][0])/2, midY=(bounds[0][1]+bounds[1][1])/2;
   annotationView={scale,midX,midY};
@@ -869,7 +913,7 @@ function layoutRegionCards(){
     marker.dot.setAttribute('cx',card.x);
     marker.dot.setAttribute('cy',card.y);
   }
-  if(visible.some(card=>card.marker.office.schoolType)){
+  if(visible.some(card=>card.marker.office.schoolType || card.marker.office.ministry)){
     layoutSchools(visible);
     return;
   }
@@ -979,11 +1023,22 @@ function fittedZoom([[l,t],[r,b]]){
 }
 function fitSelection(){
   if(selected){
-    const [[l,t],[r,b]]=regions.find(x=>x.name===selected).bounds;
+    const [[l,t],[r,b]]=areaBounds(selected);
     center=[(l+r)/2,(t+b)/2];
     z=fittedZoom([[l,t],[r,b]]);
   }else{center=[W/2,H/2];z=1}
   draw();
+}
+const isMinistryArea=name=>Boolean(ministryAreaPaths[name]);
+const boundsCache=new Map();
+function areaBounds(name){
+  const region=regions.find(x=>x.name===name);
+  if(region)return region.bounds;
+  if(!boundsCache.has(name)){
+    const n=ministryAreaPaths[name].match(/-?\d+(?:\.\d+)?/g).map(Number), xs=n.filter((_,i)=>i%2===0), ys=n.filter((_,i)=>i%2);
+    boundsCache.set(name,[[Math.min(...xs),Math.min(...ys)],[Math.max(...xs),Math.max(...ys)]]);
+  }
+  return boundsCache.get(name);
 }
 function renderSelection(name,view){
   const entering=selected!==name;
@@ -1001,7 +1056,9 @@ function renderSelection(name,view){
   selected=name;
   $('office-markers').classList.toggle('cheongju-cards',name==='청주시');
   setNational(false);
-  $('region-info').hidden=!name;
+  $('region-info').hidden=!name || isMinistryArea(name);
+  $('panel').classList.toggle('ministry-area',isMinistryArea(name));
+  areaOutlines.forEach((outline,area)=>outline.classList.toggle('active',area===name));
   // The school filter opens by itself whenever a district with schools is chosen.
   schoolToggle.setAttribute('aria-expanded',String(entering && regionsWithSchools.has(name)));
   for(const input of typeInputs){
@@ -1011,7 +1068,7 @@ function renderSelection(name,view){
     path.classList.toggle('active',n===name);
     path.setAttribute('aria-pressed',String(n===name));
   });
-  if(name)$('districts').append(paths.get(name));
+  if(paths.has(name))$('districts').append(paths.get(name));
   $('announce').textContent=name?name+' 확대 보기':'충청북도 전체 보기';
   layoutRegionCards();
   if(view){
@@ -1162,7 +1219,7 @@ function choose(name){
 
 function restoreEntry(state){
   const view=state?.chungbukMap;
-  if(view && (view.region==='' || paths.has(view.region)) &&
+  if(view && (view.region==='' || paths.has(view.region) || isMinistryArea(view.region)) &&
      Array.isArray(view.center) && view.center.length===2 && view.center.every(Number.isFinite) &&
      Number.isFinite(view.zoom) && view.zoom>=zMin-.001 && view.zoom<=8){
     renderSelection(view.region,view);
@@ -1220,7 +1277,7 @@ gestureArea.addEventListener('pointerdown',e=>{
   tapTarget=null;
   if(!touches.size){
     start=position;
-    tapTarget=e.target.closest('[data-office],[data-gu],[data-region],[data-neighbour]');
+    tapTarget=e.target.closest('[data-office],[data-gu],[data-region],[data-ministry-area],[data-neighbour]');
     if(tapTarget?.matches('.school-marker')){
       const card=tapTarget;
       card.classList.remove('heart-in','heart-out');
@@ -1278,11 +1335,13 @@ gestureArea.addEventListener('lostpointercapture',e=>{
 // Commit selection on click so a newly revealed label cannot receive the same tap.
 // Keyboard and assistive-technology activations have no preceding pointer gesture.
 gestureArea.addEventListener('click',e=>{
-  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-gu],[data-region],[data-neighbour]'):pendingMapTap;
+  const target=e.detail===0 && !e.pointerType?e.target.closest('.office-marker,[data-gu],[data-region],[data-ministry-area],[data-neighbour]'):pendingMapTap;
   pendingMapTap=null;
   if(target?.dataset.office)showOffice(offices.find(office=>office.name===target.dataset.office));
   // A district (구) of Cheongju: show only its schools; pressing it again shows all of Cheongju.
   else if(target?.dataset.gu)toggleGu(target.dataset.gu);
+  // 서울·과천·세종: 그곳의 행정부처 보기, 다시 누르면 충북 전체 보기.
+  else if(target?.dataset.ministryArea)choose(target.dataset.ministryArea===selected?'':target.dataset.ministryArea);
   else if(target?.dataset.neighbour)$('nation-toggle').click();
   // Clicking the already selected district again returns to the whole-province view.
   else if(target?.dataset.region===selected){
@@ -1296,6 +1355,11 @@ gestureArea.addEventListener('click',e=>{
   else if(target?.dataset.region)choose(target.dataset.region);
 });
 map.addEventListener('keydown',e=>{
+  if(e.target.dataset.ministryArea && (e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    if(!e.repeat)choose(e.target.dataset.ministryArea===selected?'':e.target.dataset.ministryArea);
+    return;
+  }
   if(e.target.dataset.neighbour && (e.key==='Enter'||e.key===' ')){
     e.preventDefault();
     if(!e.repeat)$('nation-toggle').click();
