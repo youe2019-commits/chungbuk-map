@@ -454,3 +454,15 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 #school-search-results li[aria-selected="true"], #school-search-results li:hover { background:#e9f1e8; }
 #school-search-results li.empty { color:#7d897f; cursor:default; background:none; }
 .school-search { width:0; min-width:100%; }
+/* 지형 지도만 사용: 지형/평면 선택은 보이지 않게(자리 계산은 그대로) */
+.map-mode.terrain-only, .field.national > .map-mode.terrain-only { visibility:hidden !important; pointer-events:none; }
+/* 메인 화면 홈 버튼: 지역 비교 버튼 왼쪽에 붙임 */
+#main-home { position:absolute; z-index:2; top:28px; left:28px; display:grid; place-items:center; width:44px; min-height:44px; border-radius:15px 0 0 15px; background:var(--paper); border:1px solid #d7ded0; box-shadow:0 3px 14px #3345390e,0 1px 3px #33453907; color:var(--pine); }
+#main-home svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+#main-home:hover { background:#edf2e9; }
+#main-home[hidden] { display:none; }
+#main-home:not([hidden]) + #compare-open { left:71px; border-radius:0 15px 15px 0; }
+@media(max-width:720px),(max-height:540px){
+  #main-home { top:16px; left:15px; width:38px; border-radius:10px 0 0 10px; }
+  #main-home:not([hidden]) + #compare-open { left:52px; border-radius:0 10px 10px 0; }
+}

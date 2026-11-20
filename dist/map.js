@@ -28,11 +28,8 @@ function showMode(mode) {
   $('nation-map').src = mode === 'flat' ? 'nation-flat.webp' : 'nation-terrain.webp';
   for (const control of modeControls) control.checked = control.value === mode;
 }
-let initialMode = 'terrain';
-try {
-  if (localStorage.getItem(modeKey) === 'flat') initialMode = 'flat';
-} catch { /* The switch also works with storage disabled. */ }
-showMode(initialMode);
+// 지형 지도만 사용한다(지형/평면 선택은 숨김).
+showMode('terrain');
 for (const control of modeControls) {
   control.addEventListener('change', () => {
     showMode(control.value);
@@ -537,7 +534,7 @@ function showNumbers(id, entries){
     item.append(term,number); list.append(item);
   }
 }
-$('home-button').onclick=()=>choose('');
+$('home-button').onclick=$('main-home').onclick=()=>choose('');
 // Region comparison: 청주 ↔ 그 밖의 충북, 수도권 ↔ 충북.
 $('compare-open').onclick=()=>{$('compare-dialog').showModal();$('compare-dialog').scrollTop=0};
 for(const tab of document.querySelectorAll('[data-compare]')){
@@ -772,7 +769,7 @@ function layoutSchools(cards){
   if((favoritesOnly || (cheongju && cards.some(({marker})=>marker.office.schoolType?.level==='high')))
       && Math.ceil(cards.length/2)*minPitch>bottom-top){
     $('panel').hidden=false;
-    $('compare-open').hidden=true;
+    $('compare-open').hidden=$('main-home').hidden=true;
     cardPages.hidden=false;
     if(!landscape)top=Math.max(top,cardPages.getBoundingClientRect().bottom-mapTop+edgeGap);
     const perPage=2*Math.max(1,Math.floor((bottom-top)/minPitch));
@@ -841,7 +838,7 @@ let annotationView=null;
 function layoutRegionCards(){
   syncGu();
   $('panel').hidden=!selected;
-  $('compare-open').hidden=Boolean(selected);
+  $('compare-open').hidden=$('main-home').hidden=Boolean(selected);
   schoolFilter.hidden=favoritesOnly || !regionsWithSchools.has(selected);
   cardPages.hidden=true;
   const mobile=compact.matches;
