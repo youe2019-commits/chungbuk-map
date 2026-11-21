@@ -62,9 +62,9 @@ const ministryAreaPaths={};
 for(const {name,path} of neighbourData){
   const ministry=ministryAreaNames.includes(name);
   if(ministry) ministryAreaPaths[name]=path;
+  // 서울·세종만 누를 수 있다(전국 지도로 넘어가는 기능은 없음).
   element(neighbourLayer,'path',{d:path,class:'neighbour','fill-rule':'evenodd','data-neighbour':name,
-    ...(ministry?{'data-ministry-area':name}:{}),
-    role:'button',tabindex:0,'aria-label':name+(ministry?' · 행정부처 보기':' · 전국 지도 보기')});
+    ...(ministry?{'data-ministry-area':name,role:'button',tabindex:0,'aria-label':name+' · 행정부처 보기'}:{})});
 }
 const neighbourNames=element(neighbourLayer,'g',{'pointer-events':'none'});
 for(const {short,label:[x,y]} of neighbourData){
@@ -95,7 +95,7 @@ for(const name of ministryAreaNames) if(ministryAreaPaths[name])
 const cityLayer=element(neighbourLayer,'g',{class:'neighbour-cities','pointer-events':'none'});
 const cityLabels=[];
 for(const {name,path} of cityData) element(cityLayer,'path',name==='과천시'
-  ?{d:path,class:'ministry-city','data-ministry-area':name,'pointer-events':'all',role:'button',tabindex:0,'aria-label':'과천시 · 행정부처 보기'}
+  ?{d:path,class:'ministry-town','data-ministry-area':'서울특별시','pointer-events':'all',role:'button',tabindex:0,'aria-label':'서울·과천 · 행정부처 보기'}
   :{d:path});
 for(const {name,label:[x,y]} of cityData){
   const text=element(cityLayer,'text',{x,y,class:'city-name','text-anchor':'middle','dominant-baseline':'central'});
@@ -626,7 +626,7 @@ for(const [name,region,lat,lon,address,place,description,url] of [
   ['통일부','서울특별시',37.5757,126.9751,'서울특별시 종로구 세종대로 209','정부서울청사','남북 관계와 교류, 통일 준비에 관한 정책을 마련합니다.','https://www.unikorea.go.kr'],
   ['성평등가족부','서울특별시',37.5749,126.9758,'서울특별시 종로구 세종대로 209','정부서울청사','성평등 정책을 마련하고 청소년과 다양한 가족을 지원합니다.','https://www.mogef.go.kr'],
   ['국방부','서울특별시',37.5365,126.9775,'서울특별시 용산구 이태원로 22','국방부 청사','나라를 지키는 데 필요한 국방 정책을 세우고 군을 운영합니다.','https://www.mnd.go.kr'],
-  ['법무부','과천시',37.4296,126.9893,'경기도 과천시 관문로 47','정부과천청사','범죄를 예방하고 교정 시설과 출입국 제도를 운영합니다.','https://www.moj.go.kr'],
+  ['법무부','서울특별시',37.4296,126.9893,'경기도 과천시 관문로 47','정부과천청사','범죄를 예방하고 교정 시설과 출입국 제도를 운영합니다.','https://www.moj.go.kr'],
   ['교육부','세종특별자치시',36.4996,127.2549,'세종특별자치시 갈매로 408','정부세종청사 14동','초·중·고 교육과 대학교육에 관한 국가 정책을 마련합니다.','https://www.moe.go.kr'],
   ['재정경제부','세종특별자치시',36.5052,127.2648,'세종특별자치시 갈매로 477','정부세종청사 4동','나라의 경제정책을 조정하고 세금 제도를 마련합니다.','https://www.moef.go.kr'],
   ['행정안전부','세종특별자치시',36.5031,127.2622,'세종특별자치시 도움6로 42','정부세종청사 중앙동','지방자치단체를 지원하고 국가의 재난 안전 관리를 조정합니다.','https://www.mois.go.kr'],
@@ -1029,13 +1029,15 @@ function fitSelection(){
   }else{center=[W/2,H/2];z=1}
   draw();
 }
-const isMinistryArea=name=>Boolean(ministryAreaPaths[name]);
+const isMinistryArea=name=>name!=='과천시' && Boolean(ministryAreaPaths[name]);
+// 서울을 고르면 과천도 함께(같은 카드 묶음) 보여 준다.
+const areaParts=name=>name==='서울특별시'?['서울특별시','과천시']:[name];
 const boundsCache=new Map();
 function areaBounds(name){
   const region=regions.find(x=>x.name===name);
   if(region)return region.bounds;
   if(!boundsCache.has(name)){
-    const n=ministryAreaPaths[name].match(/-?\d+(?:\.\d+)?/g).map(Number), xs=n.filter((_,i)=>i%2===0), ys=n.filter((_,i)=>i%2);
+    const n=areaParts(name).filter(part=>ministryAreaPaths[part]).flatMap(part=>ministryAreaPaths[part].match(/-?\d+(?:\.\d+)?/g).map(Number)), xs=n.filter((_,i)=>i%2===0), ys=n.filter((_,i)=>i%2);
     boundsCache.set(name,[[Math.min(...xs),Math.min(...ys)],[Math.max(...xs),Math.max(...ys)]]);
   }
   return boundsCache.get(name);
@@ -1058,7 +1060,7 @@ function renderSelection(name,view){
   setNational(false);
   $('region-info').hidden=!name || isMinistryArea(name);
   $('panel').classList.toggle('ministry-area',isMinistryArea(name));
-  areaOutlines.forEach((outline,area)=>outline.classList.toggle('active',area===name));
+  areaOutlines.forEach((outline,area)=>outline.classList.toggle('active',isMinistryArea(name) && areaParts(name).includes(area)));
   // The school filter opens by itself whenever a district with schools is chosen.
   schoolToggle.setAttribute('aria-expanded',String(entering && regionsWithSchools.has(name)));
   for(const input of typeInputs){
@@ -1342,7 +1344,6 @@ gestureArea.addEventListener('click',e=>{
   else if(target?.dataset.gu)toggleGu(target.dataset.gu);
   // 서울·과천·세종: 그곳의 행정부처 보기, 다시 누르면 충북 전체 보기.
   else if(target?.dataset.ministryArea)choose(target.dataset.ministryArea===selected?'':target.dataset.ministryArea);
-  else if(target?.dataset.neighbour)$('nation-toggle').click();
   // Clicking the already selected district again returns to the whole-province view.
   else if(target?.dataset.region===selected){
     // Clicking the selected district again shows the whole province, centred on that district.
@@ -1358,11 +1359,6 @@ map.addEventListener('keydown',e=>{
   if(e.target.dataset.ministryArea && (e.key==='Enter'||e.key===' ')){
     e.preventDefault();
     if(!e.repeat)choose(e.target.dataset.ministryArea===selected?'':e.target.dataset.ministryArea);
-    return;
-  }
-  if(e.target.dataset.neighbour && (e.key==='Enter'||e.key===' ')){
-    e.preventDefault();
-    if(!e.repeat)$('nation-toggle').click();
     return;
   }
   if(e.target.dataset.gu && (e.key==='Enter'||e.key===' ')){

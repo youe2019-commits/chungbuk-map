@@ -470,9 +470,9 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .area-terrain image { opacity:.92; }
 .area-outline { fill:none; stroke:#f7f8f3; stroke-width:1.2px; vector-effect:non-scaling-stroke; }
 .area-outline.active { stroke:#2f6fa8; stroke-width:2.2px; }
-.neighbour-cities .ministry-city { fill:transparent; cursor:pointer; }
-.neighbour-cities .ministry-city:focus { outline:none; }
-.neighbour-cities .ministry-city:focus-visible { stroke:#4877ac; stroke-width:2.5px; }
+.neighbour-cities .ministry-town { fill:transparent; cursor:pointer; }
+.neighbour-cities .ministry-town:focus { outline:none; }
+.neighbour-cities .ministry-town:focus-visible { stroke:#4877ac; stroke-width:2.5px; }
 .ministry-marker span {
   height:min(24px,100%); padding:0 4px; box-shadow:none;
   border-color:var(--office-color); border-radius:7px;
@@ -487,3 +487,6 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 #office-extra .detail-open { margin-top:12px; }
 #office-extra .detail-open { display:inline-flex; align-items:center; min-height:36px; padding:0 14px; border:1px solid #2f6fa8; border-radius:9px; background:#eef4fa; color:#2f6fa8; font-size:13px; font-weight:700; text-decoration:none; }
 #office-extra .detail-open:hover { background:#dfeaf5; }
+/* 회색 지역은 누를 수 없음(서울·세종 제외) */
+.neighbour:not([data-ministry-area]) { cursor:default; }
+.neighbour:not([data-ministry-area]):hover { fill-opacity:.72; }
