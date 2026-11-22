@@ -490,3 +490,5 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 /* 회색 지역은 누를 수 없음(서울·세종 제외) */
 .neighbour:not([data-ministry-area]) { cursor:default; }
 .neighbour:not([data-ministry-area]):hover { fill-opacity:.72; }
+
+#gu-layer:not(.show-dong-names) .dong-label { display:none; }
