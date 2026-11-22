@@ -492,3 +492,8 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .neighbour:not([data-ministry-area]):hover { fill-opacity:.72; }
 
 #gu-layer:not(.show-dong-names) .dong-label { display:none; }
+
+#moe-org .org-head summary { cursor:pointer; }
+#moe-org .org-head p { color:white; margin:.65em 0 0; font-size:13px; line-height:1.7; }
+#moe-org .org-head a { color:inherit; }
+#moe-org .org-sub a { display:inline-block; max-width:100%; padding:3px 0; color:#245b49; text-underline-offset:3px; }
