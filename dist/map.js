@@ -1021,6 +1021,19 @@ function layoutSchools(cards){
   }
 
   const rowOffset=Math.min(14,pitch/3);
+  const cardWidth=({marker})=>{
+    const padding=marker.office.schoolType||marker.office.ministry?8:32;
+    return Math.min(maxWidth,Math.max(44,marker.office.short.length*13+padding+(marker.office.specialLabel?8:0)));
+  };
+  // 넓은 화면에서는 카드 줄을 화면 양 끝이 아니라 고른 지역 바로 옆에 둔다.
+  // 학교 점과 같은 기준(확대가 끝난 화면)으로 지역의 좌우 끝을 계산한다.
+  const [[areaL],[areaR]]=selected?areaBounds(selected):[[0],[W]];
+  const areaLeft=Math.min(origin[0]+(areaL-annotationView.midX)*annotationView.scale,...cards.map(({x})=>x));
+  const areaRight=Math.max(origin[0]+(areaR-annotationView.midX)*annotationView.scale,...cards.map(({x})=>x));
+  const reach=Math.min(56,Math.max(28,(right-left)*.04));
+  const widest=column=>Math.max(0,...cards.filter(card=>card.column===column).map(cardWidth));
+  const colLeft=Math.min(Math.max(left,areaLeft-reach-widest(0)),right-widest(0));
+  const colRight=Math.max(Math.min(right,areaRight+reach+widest(1)),left+widest(1));
 
   // Reserve enough room for every later card in each column, then place each
   // card as close to its latitude as possible while preserving north-to-south order.
@@ -1039,11 +1052,10 @@ function layoutSchools(cards){
     floor=rowY;
     nextFree[column]=rowY+pitch;
     const name=marker.office.short;
-    const padding=marker.office.schoolType||marker.office.ministry?8:32;
-    const width=Math.min(maxWidth,Math.max(44,name.length*13+padding+(marker.office.specialLabel?8:0)));
+    const width=cardWidth({marker});
     // 찜한 학교만 볼 때는 카드를 화면 끝이 아니라 학교 점 가까이에 둔다.
     const near=favoritesOnly?Math.min(42,(right-left)*.08):0;
-    const cardX=!near?(column===0?left:right-width)
+    const cardX=!near?(column===0?colLeft:colRight-width)
       :column===0?Math.max(left,Math.min(x-near-width,right-width)):Math.min(right-width,Math.max(x+near,left));
     const cardEdge=cardX+(column===0?width:0);
     const elbow=near?cardEdge+(x-cardEdge)/2
