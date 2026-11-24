@@ -99,6 +99,12 @@ const Icon = ({type, size = 84}) => {
             <path {...st} d="M44 18v12" />
           </>
         )}
+        {type === 'book' && (
+          <>
+            <path {...st} d="M24 12c-5-4-12-4-18-2v28c6-2 13-2 18 2 5-4 12-4 18-2V10c-6-2-13-2-18 2z" />
+            <path {...st} d="M24 12v28" />
+          </>
+        )}
         {type === 'parent' && (
           <>
             <path {...st} d="M6 22 24 8l18 14" />
@@ -166,9 +172,8 @@ const Hook = () => {
 // ───────── 0:04–0:14 누가 쓰나요 ─────────
 
 const PEOPLE = [
-  ['student', '중학생', '진학할 고등학교를 우리 지역에서 찾아요', 1.2],
-  ['parent', '학부모', '우리 동네 학교 위치와 종류를 한눈에 봐요', 3.2],
-  ['teacher', '선생님', '사회 수업에서 지역과 인구를 함께 다뤄요', 5.2],
+  ['book', '초등학생', '진학할 중학교를 우리 동네에서 찾아요', 1.2],
+  ['student', '중학생', '진학할 고등학교를 우리 지역에서 찾아요', 3.4],
 ];
 
 const Who = () => {
@@ -185,10 +190,10 @@ const Who = () => {
       <div style={{position: 'absolute', left: 120, top: 110, opacity: title, transform: rise(title)}}>
         <div style={{fontSize: 34, fontWeight: 700, color: C.teal}}>누가 쓰나요?</div>
         <div style={{fontSize: 68, fontWeight: 800, color: C.ink, marginTop: 8, letterSpacing: -1.5}}>
-          충북의 학생·학부모·선생님
+          충북의 초등학생·중학생
         </div>
       </div>
-      <div style={{position: 'absolute', left: 120, top: 330, display: 'flex', flexDirection: 'column', gap: 34, width: 1020}}>
+      <div style={{position: 'absolute', left: 120, top: 380, display: 'flex', flexDirection: 'column', gap: 44, width: 1020}}>
         {PEOPLE.map(([icon, who, text, at]) => {
           const op = appear(f, s(at), 16);
           return (
@@ -198,7 +203,7 @@ const Who = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 34,
-                padding: '28px 36px',
+                padding: '36px 40px',
                 borderRadius: 28,
                 background: C.paper,
                 boxShadow: '0 10px 30px rgba(30,60,45,.10)',
@@ -443,7 +448,7 @@ const End = () => {
           충북 지도
         </div>
         <div style={{fontSize: 36, fontWeight: 600, color: C.ink, marginTop: 30, lineHeight: 1.5, opacity: b, transform: rise(b)}}>
-          충북 학생·학부모·선생님을 위한 우리 지역 학교 지도
+          충북 초등학생·중학생을 위한 우리 지역 학교 지도
         </div>
         <div
           style={{
