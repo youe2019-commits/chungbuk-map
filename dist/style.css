@@ -511,3 +511,28 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 /* 읍·면·동별 인구밀도: 얇은 동 경계와 범례 기준 안내 */
 .dong-density { stroke:#ffffffb0; stroke-width:.25; }
 .density-legend .legend-note { margin:-2px 0 3px; font-size:10.5px; }
+/* 인구밀도 지도에서 지역을 선택해도 색이 가려지지 않게: 흰색·초록 덮개 대신 테두리로만 강조 */
+#map.density-mode .district.hover { fill:#ffffff2e; }
+#map.density-mode .district.active { fill:transparent; }
+#map.density-mode .gu { fill:transparent; }
+#map.density-mode .gu:hover { fill:#ffffff40; }
+#map.density-mode #gu-layer.picked .gu { fill:#fbfaf466; }
+#map.density-mode #gu-layer.picked .gu.active { fill:transparent; stroke:#1f4d3a; stroke-width:2.6px; }
+#map.density-mode #gu-layer.intro .gu { animation-name:gu-part-plain; }
+/* 색은 움직이지 않으므로 조각을 띄우지 않고 테두리만 잠깐 진하게 */
+@keyframes gu-part-plain {
+  30%,68% { stroke:#1f4d3a; stroke-dasharray:none; stroke-width:2.6px; fill:#ffffff26; }
+}
+/* 인구밀도/지형 지도를 바꿀 때 짧게 서서히 나타남 */
+#basemap > .basemap-in { animation:basemap-in .35s ease both; }
+@keyframes basemap-in { from { opacity:0; } to { opacity:1; } }
+@media (prefers-reduced-motion:reduce){ #basemap > .basemap-in { animation:none; } }
+/* 지역 선택 중에는 한 줄짜리 범례 */
+.legend-compact { display:none; }
+.density-legend.compact .legend-steps, .density-legend.compact .legend-note { display:none; }
+.density-legend.compact { padding:7px 10px; gap:3px; }
+.density-legend.compact .legend-compact { display:flex; align-items:center; gap:2px; }
+.legend-compact i { width:18px; height:10px; border-radius:2px; border:1px solid #0000001a; }
+.legend-compact em { font-style:normal; font-size:11px; color:#5b6a60; margin:0 5px; }
+.legend-compact em:first-child { margin-left:0; }
+@media(max-width:720px){ .density-legend { bottom:86px; } }

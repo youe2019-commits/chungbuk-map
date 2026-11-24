@@ -35,16 +35,27 @@ function pathArea(d){
   return Math.abs(total)/(km*km);
 }
 const legend=$('density-legend');
-legend.insertAdjacentHTML('beforeend',densitySteps.map(([,color,text])=>`<span><i style="background:${color}"></i>${text}</span>`).join(''));
+legend.insertAdjacentHTML('beforeend','<div class="legend-steps">'+densitySteps.map(([,color,text])=>`<span><i style="background:${color}"></i>${text}</span>`).join('')+'</div>'
+  +'<div class="legend-compact"><em>적음</em>'+[...densitySteps].reverse().map(([,color,text])=>`<i style="background:${color}" title="${text}"></i>`).join('')+'<em>많음</em></div>');
+// 지역을 선택하면 범례를 한 줄로 줄여 학교 카드와 겹치지 않게 한다(가로 휴대폰 화면에서는 숨김).
+function syncLegend(){
+  const landscape=compact.matches && innerHeight<425 && innerWidth>=540;
+  legend.hidden = mapMode !== 'density' || (!!selected && landscape);
+  legend.classList.toggle('compact',!!selected);
+}
 
 const modeControls = document.querySelectorAll('input[name="map-mode"]');
 const modeKey = 'chungbuk-atlas.map-mode';
 let mapMode='density';
 function showMode(mode) {
+  const layer = mode === 'density' ? densityLayer : terrain;
+  // 지도를 바꿀 때 새 지도가 짧게 서서히 나타나도록 한다(처음 열 때는 바로 표시).
+  layer.classList.toggle('basemap-in', mapMode !== mode);
   mapMode=mode;
-  $('basemap').replaceChildren(mode === 'density' ? densityLayer : terrain);
+  $('basemap').replaceChildren(layer);
+  map.classList.toggle('density-mode', mode === 'density');
   for (const control of modeControls) control.checked = control.value === mode;
-  legend.hidden = mode !== 'density' || !!selected;
+  syncLegend();
 }
 // 처음에는 인구밀도 지도를 보여 준다(지형 지도로 바꿀 수 있음).
 queueMicrotask(()=>showMode('density'));
@@ -953,7 +964,9 @@ function layoutSchools(cards){
   const edgeGap=cheongju?4:8;
   const topControls=Math.max(filter.bottom,$('region-info').getBoundingClientRect().bottom,document.querySelector('.map-mode').getBoundingClientRect().bottom);
   let top=landscape?edgeGap:topControls-mapTop+edgeGap;
-  const bottom=landscape?vh-edgeGap:controls.top-mapTop-edgeGap;
+  syncLegend();
+  const legendTop=legend.hidden?Infinity:legend.getBoundingClientRect().top;
+  const bottom=landscape?vh-edgeGap:Math.min(controls.top,legendTop)-mapTop-edgeGap;
   // When high-school filters crowd the map, page the labels but keep all location dots.
   const minPitch=26;
   if((favoritesOnly || (cheongju && cards.some(({marker})=>marker.office.schoolType?.level==='high')))
@@ -1144,7 +1157,7 @@ function draw(){
     label.style.fontSize=(labelSize/k)+'px';label.style.strokeWidth=(2.8/k)+'px';
     label.classList.toggle('active',selected===name);
   });
-  legend.hidden = mapMode !== 'density' || !!selected;
+  syncLegend();
   const guSize=Math.min(17,12+2*Math.log2(z));
   for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
   guLayer.classList.toggle('show-dong-names',guGroups.has(selected) && z>=1.4*fittedZoom(areaBounds(selected)));
