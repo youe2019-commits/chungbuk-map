@@ -508,3 +508,6 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .density-legend span { display:flex; align-items:center; gap:7px; }
 .density-legend i { width:16px; height:12px; border-radius:3px; border:1px solid #0000001a; }
 @media(max-width:720px),(max-height:540px) { .density-legend { left:14px; bottom:48px; padding:7px 9px; font-size:11px; gap:2px; } }
+/* 읍·면·동별 인구밀도: 얇은 동 경계와 범례 기준 안내 */
+.dong-density { stroke:#ffffffb0; stroke-width:.6; vector-effect:non-scaling-stroke; stroke-linejoin:round; }
+.density-legend .legend-note { margin:-2px 0 3px; font-size:10.5px; }

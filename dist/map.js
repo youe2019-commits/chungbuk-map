@@ -21,9 +21,10 @@ const waterData=typeof water==='object'?water:{area:'',rivers:''};
 element(waterLayer,'path',{class:'water-area',d:waterData.area,'fill-rule':'evenodd'});
 element(waterLayer,'path',{class:'water-line',d:waterData.rivers,'vector-effect':'non-scaling-stroke'});
 
-// 인구밀도 지도: 주민등록 인구(남+여) ÷ 경계 데이터로 계산한 면적(㎢)
+// 인구밀도 지도: 읍·면·동별 주민등록 인구 ÷ 경계 데이터로 계산한 면적(㎢)
 const densityLayer=document.createElementNS(ns,'g');
-const densitySteps=[[500,'#b30000','500 이상'],[200,'#e34a33','200~500'],[100,'#fc8d59','100~200'],[50,'#fdcc8a','50~100'],[0,'#fef0d9','50 미만']];
+const densitySteps=[[5000,'#4a8090','5,000 이상'],[1000,'#6fa69f','1,000~5,000'],[300,'#9cc5ae','300~1,000'],[100,'#c6dcbc','100~300'],[30,'#e4ebcf','30~100'],[0,'#f6f2e4','30 미만']];
+const densityColor=density=>densitySteps.find(([min])=>density>=min)[1];
 function pathArea(d){
   let total=0;
   for(const ring of d.split('M').filter(Boolean)){
@@ -60,7 +61,8 @@ regions.forEach(({name,path,label},i)=>{
   element(land,'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
   const people=(regionStatistics[name]?.male||0)+(regionStatistics[name]?.female||0);
   const density=people/pathArea(path);
-  element(densityLayer,'path',{d:path,fill:densitySteps.find(([min])=>density>=min)[1],'fill-rule':'evenodd'});
+  // 시·군 색을 바탕에 깔아 읍·면·동 경계 사이의 작은 틈을 메운다.
+  element(densityLayer,'path',{d:path,fill:densityColor(density),'fill-rule':'evenodd'});
   const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name,
     role:'button',tabindex:0,'aria-label':name,'aria-pressed':'false'});
   paths.set(name,region);
@@ -71,6 +73,10 @@ regions.forEach(({name,path,label},i)=>{
   const labelNode=element($('labels'),'text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'map-label'});
   labelNode.textContent=name;labels.set(name,labelNode);
 });
+// 읍·면·동별 인구밀도 (데이터 파일이 없으면 시·군 단위 색만 보인다)
+const dongDensity=element(densityLayer,'g',{'clip-path':'url(#province)'});
+for(const {people,path} of (typeof dongPopulation==='object'?dongPopulation:[]))
+  element(dongDensity,'path',{d:path,fill:densityColor(people/pathArea(path)),class:'dong-density','fill-rule':'evenodd'});
 // Neighbouring provinces in grey; pressing one opens the national map.
 const neighbourLayer=document.createElementNS(ns,'g');neighbourLayer.id='neighbour-layer';
 world.insertBefore(neighbourLayer,$('districts'));
