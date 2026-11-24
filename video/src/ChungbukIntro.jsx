@@ -27,15 +27,25 @@ const FPS = 30;
 const s = (sec) => Math.round(sec * FPS);
 const ease = Easing.inOut(Easing.cubic);
 
-// 장면 시간표 (README 구성안과 같은 순서·길이)
-const SCENES = {
-  intro: [0, s(12)],
-  cards: [s(12), s(30)],
-  heart: [s(42), s(30)],
-  list: [s(72), s(26)],
-  city: [s(98), s(30)],
-  outro: [s(128), s(12)],
-};
+// 장면 시간표 (README 시나리오와 같은 순서·길이): 인구 보기 → 학교 분포 보기 → 관심 학교 고르기
+const ORDER = [
+  ['intro', 12],
+  ['density', 24],
+  ['select', 22],
+  ['danyang', 16],
+  ['city', 22],
+  ['heart', 26],
+  ['cards', 24],
+  ['list', 20],
+  ['outro', 12],
+];
+const SCENES = {};
+ORDER.reduce((at, [name, sec]) => {
+  SCENES[name] = [s(at), s(sec)];
+  return at + sec;
+}, 0);
+export const TOTAL_FRAMES = s(ORDER.reduce((sum, [, sec]) => sum + sec, 0));
+const STAGES = ['', '1단계 인구 보기', '2단계 학교 분포 보기', '3단계 관심 학교 고르기'];
 
 // ───────── 공통 도우미 ─────────
 
@@ -155,8 +165,14 @@ const Panel = ({src, size, cam, label, after, overlay, src2, mix = 0}) => {
 };
 
 // 장면 제목 + 요청 인용 + 바꾼 이유 자막
-const CompareFrame = ({f, dur, no, title, request, reasons, left, right, callout}) => {
+const CompareFrame = ({f, dur, no, stage, title, request, reasons, left, right, callout}) => {
   const qOp = appear(f, s(1.5));
+  // 요청이 여러 개이면 [원문, 시작 초] 순서대로 바꿔 보여 준다.
+  const requests = Array.isArray(request) ? request : [[request, 0]];
+  const current = requests.filter(([, at]) => f >= s(at)).pop() || requests[0];
+  const swap = appear(f, s(current[1]), 12);
+  const requestText = current[0];
+  const longRequest = requestText.length > 42;
   return (
     <AbsoluteFill style={{background: C.bg, opacity: fade(f, dur)}}>
       {/* 제목 */}
@@ -189,7 +205,7 @@ const CompareFrame = ({f, dur, no, title, request, reasons, left, right, callout
         <span style={{fontSize: 44, fontWeight: 800, color: C.ink}}>{title}</span>
       </div>
       <div style={{position: 'absolute', right: 44, top: 40, fontSize: 26, color: C.sub, fontWeight: 600}}>
-        충북 지도 · 만든 과정 {no}/4
+        {STAGES[stage]} · {no}/7
       </div>
 
       {/* 좌우 비교 */}
@@ -207,7 +223,9 @@ const CompareFrame = ({f, dur, no, title, request, reasons, left, right, callout
           left: 40,
           right: 40,
           top: 742,
-          height: 92,
+          minHeight: 92,
+          padding: '8px 0',
+          boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
           background: '#fff',
@@ -221,7 +239,22 @@ const CompareFrame = ({f, dur, no, title, request, reasons, left, right, callout
         <span style={{width: 290, paddingLeft: 26, fontSize: 26, fontWeight: 700, color: C.green}}>
           내가 AI에게 한 요청
         </span>
-        <span style={{fontSize: 38, fontWeight: 700, color: C.ink}}>{request}</span>
+        <span
+          style={{
+            flex: 1,
+            paddingRight: 30,
+            fontSize: longRequest ? 30 : 38,
+            lineHeight: 1.3,
+            fontWeight: 700,
+            color: C.ink,
+            opacity: current === requests[0] ? 1 : swap,
+          }}
+        >
+          {requests.length > 1 ? (
+            <span style={{fontSize: 24, color: C.green, marginRight: 12}}>{'①②③'[requests.indexOf(current)]}</span>
+          ) : null}
+          {requestText}
+        </span>
       </div>
 
       {/* 바꾼 이유 */}
@@ -287,7 +320,7 @@ const Tag = ({x, y, text, op}) => (
   </div>
 );
 
-// ───────── 0:00–0:12 도입 ─────────
+// ───────── 도입 ─────────
 
 const Intro = () => {
   const f = useCurrentFrame();
@@ -332,17 +365,18 @@ const Intro = () => {
         }}
       >
         <Device label="컴퓨터">
-          <Img src={staticFile('screens/map-desktop.webp')} style={{width: 1000, height: 625, display: 'block'}} />
+          <Img src={staticFile('screens/map-desktop-density.webp')} style={{width: 1000, height: 625, display: 'block'}} />
         </Device>
         <Device label="휴대폰">
-          <Img src={staticFile('screens/map-mobile.webp')} style={{width: 289, height: 625, display: 'block'}} />
+          <Img src={staticFile('screens/map-mobile-density.webp')} style={{width: 289, height: 625, display: 'block'}} />
         </Device>
       </div>
 
       <Caption
         lines={[
-          ['충북 학생·학부모·교직원이 우리 지역의 학교 정보를 쉽게 찾아보도록 만든 수업용 지도입니다.', s(5)],
-          ['학교를 찾아보고 찜할 수 있습니다. 직접 써 보면서 바꾼 네 장면을 소개합니다.', s(8)],
+          ['충북 학생·학부모·교직원이 우리 지역의 학교를 쉽게 찾아보도록 만든 수업용 지도입니다.', s(5)],
+          ['인구를 보고 → 학교가 어디에 있는지 살피고 → 관심 있는 학교를 고릅니다.', s(7)],
+          ['직접 써 보면서 고친 일곱 장면을 소개합니다.', s(9)],
         ]}
         f={f}
       />
@@ -389,7 +423,7 @@ const Caption = ({lines, f}) => (
   </div>
 );
 
-// ───────── 0:12–0:42 ① 찜 카드 위치 ─────────
+// ───────── 3단계 ⑥ 찜한 학교 카드 위치 ─────────
 
 const Cards = () => {
   const f = useCurrentFrame();
@@ -397,16 +431,16 @@ const Cards = () => {
   // 전체 비교 → 옥천중 점에서 점선을 따라 왼쪽으로
   const cam = camAt(f, [
     {t: 0, cx: 640, cy: 400, w: 1280},
-    {t: 10, cx: 640, cy: 400, w: 1280},
-    {t: 13, cx: 470, cy: 600, w: 460},
-    {t: 21, cx: 270, cy: 615, w: 540},
-    {t: 27, cx: 270, cy: 615, w: 540},
+    {t: 8, cx: 640, cy: 400, w: 1280},
+    {t: 10.5, cx: 470, cy: 600, w: 460},
+    {t: 17, cx: 270, cy: 615, w: 540},
+    {t: 22, cx: 270, cy: 615, w: 540},
   ]);
-  const ringsAll = interpolate(f, [s(2.5), s(3.2), s(9.2), s(9.8)], [0, 1, 1, 0], {
+  const ringsAll = interpolate(f, [s(2), s(2.7), s(7.4), s(8)], [0, 1, 1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const ringOk = appear(f, s(13.5));
+  const ringOk = appear(f, s(11));
   const before = [
     [55, 357],
     [1218, 337],
@@ -421,12 +455,13 @@ const Cards = () => {
     <CompareFrame
       f={f}
       dur={dur}
-      no={1}
-      title="찜한 학교 카드 위치"
+      no={6}
+      stage={3}
+      title="찜한 학교만 보기: 카드 위치"
       request="“점선을 짧게 해서 좀 더 가깝게 보이도록 하자.”"
       reasons={[
-        ['학교를 여러 곳 찜하니 카드가 양끝으로 흩어졌습니다.', 3],
-        ['카드와 지도 위 점을 가까이 두면 어느 학교인지 바로 연결해 볼 수 있습니다.', 14],
+        ['학교를 여러 곳 찜하니 카드가 양끝으로 흩어졌습니다.', 2],
+        ['카드와 지도 위 점을 가까이 두면 어느 학교인지 바로 연결해 볼 수 있습니다.', 11],
       ]}
       left={{
         src: 'screens/cards-before.webp',
@@ -459,33 +494,33 @@ const Cards = () => {
       }}
       callout={
         <>
-          <Tag x={490} y={624} text="옥천중 카드는 화면 끝에…" op={appear(f, s(17))} />
-          <Tag x={1430} y={624} text="점 바로 옆에 옥천중" op={appear(f, s(17))} />
+          <Tag x={490} y={624} text="옥천중 카드는 화면 끝에…" op={appear(f, s(14))} />
+          <Tag x={1430} y={624} text="점 바로 옆에 옥천중" op={appear(f, s(14))} />
         </>
       }
     />
   );
 };
 
-// ───────── 0:42–1:12 ② 누르는 동안의 하트 ─────────
+// ───────── 3단계 ⑤ 찜하기: 누르는 동안의 하트 ─────────
 
 const Heart = () => {
   const f = useCurrentFrame();
   const dur = SCENES.heart[1];
   const cam = camAt(f, [
     {t: 0, cx: 195, cy: 452, w: 390},
-    {t: 4, cx: 195, cy: 452, w: 390},
-    {t: 8, cx: 90, cy: 452, w: 170},
+    {t: 3, cx: 195, cy: 452, w: 390},
+    {t: 6.5, cx: 90, cy: 452, w: 170},
   ]);
-  const press = interpolate(f, [s(5), s(5.5), s(17), s(17.6)], [0, 1, 1, 0], {
+  const press = interpolate(f, [s(4), s(4.5), s(15), s(15.6)], [0, 1, 1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const pressLeft = interpolate(f, [s(5), s(5.5), s(25), s(25.5)], [0, 1, 1, 0], {
+  const pressLeft = interpolate(f, [s(4), s(4.5), s(22), s(22.5)], [0, 1, 1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const saved = interpolate(f, [s(17.2), s(18.2)], [0, 1], {
+  const saved = interpolate(f, [s(15.2), s(16.2)], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -508,12 +543,13 @@ const Heart = () => {
     <CompareFrame
       f={f}
       dur={dur}
-      no={2}
-      title="길게 누르는 동안의 하트"
+      no={5}
+      stage={3}
+      title="찜하기: 길게 누르는 동안의 하트"
       request="“하트가 등록되는 것(과정)이 보이도록.”"
       reasons={[
-        ['처음에는 누르고 있어도 화면이 그대로였습니다.', 3],
-        ['이제 하트가 커지면 터치가 인식된 걸 알고, 작아져 자리에 남으면 손을 떼도 됩니다.', 12],
+        ['처음에는 누르고 있어도 화면이 그대로였습니다.', 2],
+        ['이제 하트가 커지면 터치가 인식된 걸 알고, 작아져 자리에 남으면 손을 떼도 됩니다.', 10],
       ]}
       left={{
         src: 'screens/heart-before.webp',
@@ -533,12 +569,12 @@ const Heart = () => {
       }}
       callout={
         <>
-          <Tag x={490} y={624} text="눌러도 변화 없음" op={appear(f, s(9))} />
+          <Tag x={490} y={624} text="눌러도 변화 없음" op={appear(f, s(7.5))} />
           <Tag
             x={1430}
             y={624}
             text={saved < 0.5 ? '❤ 커진 하트: 인식됐어요' : '❤ 작아져 남음: 손을 떼도 돼요'}
-            op={appear(f, s(9))}
+            op={appear(f, s(7.5))}
           />
         </>
       }
@@ -546,32 +582,33 @@ const Heart = () => {
   );
 };
 
-// ───────── 1:12–1:38 ③ 찜 목록 ─────────
+// ───────── 3단계 ⑦ 찜 목록 정리 ─────────
 
 const List = () => {
   const f = useCurrentFrame();
   const dur = SCENES.list[1];
   const cam = camAt(f, [
     {t: 0, cx: 640, cy: 400, w: 1280},
-    {t: 3, cx: 640, cy: 400, w: 1280},
-    {t: 6.5, cx: 640, cy: 420, w: 400},
+    {t: 2, cx: 640, cy: 400, w: 1280},
+    {t: 5, cx: 640, cy: 420, w: 400},
   ]);
   const win = (a, b) =>
     interpolate(f, [s(a), s(a) + 8, s(b) - 8, s(b)], [0, 1, 1, 0], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     });
-  const up = win(9, 13);
-  const down = win(13, 17);
-  const del = win(17, 24);
+  const up = win(7, 10);
+  const down = win(10, 13);
+  const del = win(13, 18.5);
   return (
     <CompareFrame
       f={f}
       dur={dur}
-      no={3}
-      title="찜한 학교 목록"
+      no={7}
+      stage={3}
+      title="찜 목록 정리"
       request="“그리고 찜한 학교 목록에서는 학교 순서 변경이나 삭제가 되면 좋겠어.”"
-      reasons={[['먼저 볼 학교는 위로 올리고, 다 본 학교는 그 자리에서 빼고 싶었습니다.', 4]]}
+      reasons={[['먼저 볼 학교는 위로 올리고, 다 본 학교는 그 자리에서 빼고 싶었습니다.', 3]]}
       left={{
         src: 'screens/list-before.webp',
         size: [1280, 800],
@@ -602,28 +639,29 @@ const List = () => {
   );
 };
 
-// ───────── 1:38–2:08 ④ 제천 행정동 ─────────
+// ───────── 2단계 ④ 제천 행정동 이름 ─────────
 
 const City = () => {
   const f = useCurrentFrame();
   const dur = SCENES.city[1];
   const cam = camAt(f, [
     {t: 0, cx: 640, cy: 400, w: 1280},
-    {t: 6, cx: 640, cy: 400, w: 1280},
-    {t: 11, cx: 765, cy: 255, w: 330},
-    {t: 19, cx: 765, cy: 255, w: 330},
-    {t: 24, cx: 700, cy: 420, w: 700},
+    {t: 4, cx: 640, cy: 400, w: 1280},
+    {t: 8, cx: 765, cy: 255, w: 330},
+    {t: 15, cx: 765, cy: 255, w: 330},
+    {t: 19, cx: 700, cy: 420, w: 700},
   ]);
   return (
     <CompareFrame
       f={f}
       dur={dur}
       no={4}
+      stage={2}
       title="제천 행정동 이름"
       request="“충주시와 제천시는 구로 구분해야하나 청주처럼?”"
       reasons={[
-        ['제천에서는 읍·면·행정동으로 학교를 찾습니다.', 3],
-        ['시 전체에서는 작은 동 이름을 감추고, 시내를 확대할 때 읽을 수 있게 했습니다.', 12],
+        ['제천에서는 읍·면·행정동으로 학교를 찾습니다.', 2],
+        ['시 전체에서는 작은 동 이름을 감추고, 시내를 확대할 때 읽을 수 있게 했습니다.', 9],
       ]}
       left={{
         src: 'screens/city-before.webp',
@@ -639,15 +677,170 @@ const City = () => {
       }}
       callout={
         <>
-          <Tag x={490} y={624} text="어느 동네인지 알기 어려움" op={appear(f, s(11))} />
-          <Tag x={1430} y={624} text="영서동 · 화산동 · 신백동 …" op={appear(f, s(11))} />
+          <Tag x={490} y={624} text="어느 동네인지 알기 어려움" op={appear(f, s(8.5))} />
+          <Tag x={1430} y={624} text="영서동 · 화산동 · 신백동 …" op={appear(f, s(8.5))} />
         </>
       }
     />
   );
 };
 
-// ───────── 2:08–2:20 마무리 ─────────
+// ───────── 1단계 ① 인구밀도 지도 ─────────
+
+const Density = () => {
+  const f = useCurrentFrame();
+  const dur = SCENES.density[1];
+  // 지형 → 시·군(1차), 시·군 → 읍·면·동(2차). 마지막에 청주 시내를 확대한다.
+  const step = interpolate(f, [s(11), s(12)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const cam = camAt(f, [
+    {t: 0, cx: 640, cy: 400, w: 1280},
+    {t: 15.5, cx: 640, cy: 400, w: 1280},
+    {t: 18.5, cx: 440, cy: 420, w: 480},
+    {t: 24, cx: 440, cy: 420, w: 480},
+  ]);
+  const second = step >= 0.5;
+  return (
+    <CompareFrame
+      f={f}
+      dur={dur}
+      no={1}
+      stage={1}
+      title="처음 화면을 인구밀도 지도로"
+      request={[
+        ['“지금 지도가 지형 지도인데, 인구밀도 지도로 나타내자. 디폴트를 인구밀도 지도로.”', 0],
+        ['“눈이 불편하지 않은 색으로 하면 좋겠어. 그리고 조금 더 자세한 인구밀도 지도였으면 좋겠어. 시군 별로만 나누지 말고.”', 11],
+      ]}
+      reasons={[
+        ['앱을 열자마자 어느 지역에 사람이 많이 사는지 보이도록 했습니다.', 2],
+        ['시·군 안에서도 시내와 산간 마을의 차이가 보이게 읍·면·동으로 나누고, 눈이 편한 색으로 바꿨습니다.', 12],
+      ]}
+      left={{
+        src: 'screens/density-terrain.webp',
+        src2: 'screens/density-county.webp',
+        mix: step,
+        size: [1280, 800],
+        cam,
+        label: second ? '시·군 단위, 빨강·주황' : '지형 지도',
+      }}
+      right={{
+        src: 'screens/density-county.webp',
+        src2: 'screens/density-dong.webp',
+        mix: step,
+        size: [1280, 800],
+        cam,
+        label: second ? '읍·면·동 153곳, 눈이 편한 색' : '시·군 인구밀도 지도',
+      }}
+      callout={
+        <>
+          <Tag x={490} y={624} text="청주 전체가 한 가지 색" op={appear(f, s(19))} />
+          <Tag x={1430} y={624} text="청주 시내와 바깥 면이 구분됨" op={appear(f, s(19))} />
+        </>
+      }
+    />
+  );
+};
+
+// ───────── 2단계 ② 지역을 골랐을 때 ─────────
+
+const Select = () => {
+  const f = useCurrentFrame();
+  const dur = SCENES.select[1];
+  // 자리 잡은 화면(첫 요청) → 읍·면 조각이 떠오르는 순간(두 번째 요청)
+  const lift = interpolate(f, [s(11), s(12)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const cam = camAt(f, [
+    {t: 0, cx: 640, cy: 400, w: 1280},
+    {t: 2.5, cx: 640, cy: 400, w: 1280},
+    {t: 5.5, cx: 615, cy: 410, w: 680},
+  ]);
+  const lifted = lift >= 0.5;
+  return (
+    <CompareFrame
+      f={f}
+      dur={dur}
+      no={2}
+      stage={2}
+      title="지역을 골라도 인구밀도 그대로"
+      request={[
+        ['“지역 선택이 되어도 인구밀도 지도가 유지되도록 해줘.”', 0],
+        ['“색까지 함께 떠오르게”', 11],
+      ]}
+      reasons={[
+        ['지역을 고르면 덮개 때문에 인구밀도 색이 가려졌습니다.', 2],
+        ['이제 인구가 많은 곳과 학교 위치를 함께 보고, 읍·면 조각이 색과 함께 떠올라 어떻게 나뉘는지 보입니다.', 9],
+      ]}
+      left={{
+        src: 'screens/select-before.webp',
+        src2: 'screens/select-before-lift.webp',
+        mix: lift,
+        size: [1280, 800],
+        cam,
+        label: lifted ? '떠오르는 순간: 회색 조각이 색을 가림' : '괴산군을 고르면 덮개로 흐려짐',
+      }}
+      right={{
+        src: 'screens/select-after.webp',
+        src2: 'screens/select-after-lift.webp',
+        mix: lift,
+        size: [1280, 800],
+        cam,
+        label: lifted ? '떠오르는 순간: 색과 함께 떠오름' : '인구밀도 색 그대로, 테두리로 강조',
+      }}
+      callout={
+        <>
+          <Tag x={490} y={624} text={lifted ? '조각만 하얗게 떠오름' : '인구밀도 색이 가려짐'} op={appear(f, s(6))} />
+          <Tag x={1430} y={624} text={lifted ? '읍·면 조각이 색과 함께' : '괴산읍이 더 진한 색'} op={appear(f, s(6))} />
+        </>
+      }
+    />
+  );
+};
+
+// ───────── 2단계 ③ 단양 읍·면 ─────────
+
+const Danyang = () => {
+  const f = useCurrentFrame();
+  const dur = SCENES.danyang[1];
+  const cam = camAt(f, [
+    {t: 0, cx: 640, cy: 400, w: 1280},
+    {t: 2, cx: 640, cy: 400, w: 1280},
+    {t: 5, cx: 640, cy: 425, w: 640},
+  ]);
+  const pick = interpolate(f, [s(8), s(8.6), s(15), s(15.5)], [0, 1, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  return (
+    <CompareFrame
+      f={f}
+      dur={dur}
+      no={3}
+      stage={2}
+      title="단양군 읍·면 구분"
+      request="“단양군 읍, 면 구분 추가해줘.”"
+      reasons={[['다른 군처럼 단양도 읍·면을 눌러 그곳 학교만 볼 수 있게 했습니다.', 2]]}
+      left={{
+        src: 'screens/danyang-before.webp',
+        size: [1280, 800],
+        cam,
+        label: '단양군 전체로만 보기',
+      }}
+      right={{
+        src: 'screens/danyang-after.webp',
+        size: [1280, 800],
+        cam,
+        label: '8개 읍·면으로 나눠 보기',
+        overlay: (k) => <Ring x={469} y={545} r={52} scale={k} opacity={pick} />,
+      }}
+      callout={
+        <>
+          <Tag x={490} y={624} text="읍·면을 고를 수 없음" op={appear(f, s(6))} />
+          <Tag x={1430} y={624} text="단성면 → 단성중 · 한국호텔관광고" op={pick} />
+        </>
+      }
+    />
+  );
+};
+
+// ───────── 마무리 ─────────
 
 const Outro = () => {
   const f = useCurrentFrame();
@@ -675,20 +868,20 @@ const Outro = () => {
       >
         <div style={{position: 'absolute', opacity: 1 - sw, transform: `scale(${1 - sw * 0.1})`}}>
           <Device label="휴대폰">
-            <Img src={staticFile('screens/map-mobile.webp')} style={{width: 300, height: 649, display: 'block'}} />
+            <Img src={staticFile('screens/map-mobile-density.webp')} style={{width: 300, height: 649, display: 'block'}} />
           </Device>
         </div>
         <div style={{position: 'absolute', opacity: sw, transform: `scale(${0.9 + sw * 0.1})`}}>
           <Device label="컴퓨터">
-            <Img src={staticFile('screens/map-desktop.webp')} style={{width: 1040, height: 650, display: 'block'}} />
+            <Img src={staticFile('screens/map-desktop-density.webp')} style={{width: 1040, height: 650, display: 'block'}} />
           </Device>
         </div>
       </div>
       <div style={{opacity: 1 - end}}>
         <Caption
           lines={[
-            ['여러 학교를 함께 볼 때, 한 학교를 찜할 때, 동네를 찾아볼 때', s(0.8)],
-            ['화면이 어떻게 달라졌는지 살펴봤습니다.', s(1.6)],
+            ['인구를 보고, 학교가 어디에 있는지 살피고, 관심 있는 학교를 고르는 지도.', s(0.8)],
+            ['직접 써 보며 일곱 장면을 고쳤습니다.', s(1.6)],
           ]}
           f={f}
         />
@@ -705,7 +898,7 @@ const Outro = () => {
       >
         <div style={{fontSize: 96, fontWeight: 800, color: C.green}}>충북 지도</div>
         <div style={{fontSize: 34, color: C.ink, fontWeight: 600}}>
-          찜 카드 위치 · 하트 · 찜 목록 · 행정동 이름
+          인구 보기 · 학교 분포 보기 · 관심 학교 고르기
         </div>
         <div
           style={{
@@ -728,21 +921,30 @@ const Outro = () => {
 // ───────── 전체 ─────────
 
 export const ChungbukIntro = () => (
-  <AbsoluteFill style={{background: C.bg, fontFamily: FONT}}>
+  <AbsoluteFill style={{background: C.bg, fontFamily: FONT, wordBreak: 'keep-all'}}>
     <Sequence from={SCENES.intro[0]} durationInFrames={SCENES.intro[1]}>
       <Intro />
     </Sequence>
-    <Sequence from={SCENES.cards[0]} durationInFrames={SCENES.cards[1]}>
-      <Cards />
+    <Sequence from={SCENES.density[0]} durationInFrames={SCENES.density[1]}>
+      <Density />
+    </Sequence>
+    <Sequence from={SCENES.select[0]} durationInFrames={SCENES.select[1]}>
+      <Select />
+    </Sequence>
+    <Sequence from={SCENES.danyang[0]} durationInFrames={SCENES.danyang[1]}>
+      <Danyang />
+    </Sequence>
+    <Sequence from={SCENES.city[0]} durationInFrames={SCENES.city[1]}>
+      <City />
     </Sequence>
     <Sequence from={SCENES.heart[0]} durationInFrames={SCENES.heart[1]}>
       <Heart />
     </Sequence>
+    <Sequence from={SCENES.cards[0]} durationInFrames={SCENES.cards[1]}>
+      <Cards />
+    </Sequence>
     <Sequence from={SCENES.list[0]} durationInFrames={SCENES.list[1]}>
       <List />
-    </Sequence>
-    <Sequence from={SCENES.city[0]} durationInFrames={SCENES.city[1]}>
-      <City />
     </Sequence>
     <Sequence from={SCENES.outro[0]} durationInFrames={SCENES.outro[1]}>
       <Outro />

@@ -1,5 +1,5 @@
 import {registerRoot, Composition} from 'remotion';
-import {ChungbukIntro} from './ChungbukIntro.jsx';
+import {ChungbukIntro, TOTAL_FRAMES} from './ChungbukIntro.jsx';
 
 const Root = () => (
   <Composition
@@ -8,7 +8,7 @@ const Root = () => (
     width={1920}
     height={1080}
     fps={30}
-    durationInFrames={4200}
+    durationInFrames={TOTAL_FRAMES}
   />
 );
 
