@@ -54,6 +54,7 @@ function showMode(mode) {
   mapMode=mode;
   $('basemap').replaceChildren(layer);
   map.classList.toggle('density-mode', mode === 'density');
+  guLift.replaceChildren();
   for (const control of modeControls) control.checked = control.value === mode;
   syncLegend();
 }
@@ -66,14 +67,14 @@ for (const control of modeControls) {
   });
 }
 
-const paths=new Map(), labels=new Map();
+const paths=new Map(), labels=new Map(), regionDensity=new Map(), dongDensityByRegion=new Map();
 regions.forEach(({name,path,label},i)=>{
   element($('province'),'path',{d:path,'clip-rule':'evenodd'});
   element(land,'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
   const people=(regionStatistics[name]?.male||0)+(regionStatistics[name]?.female||0);
   const density=people/pathArea(path);
   // 시·군 색을 바탕에 깔아 읍·면·동 경계 사이의 작은 틈을 메운다.
-  element(densityLayer,'path',{d:path,fill:densityColor(density),'fill-rule':'evenodd'});
+  regionDensity.set(name,element(densityLayer,'path',{d:path,fill:densityColor(density),'fill-rule':'evenodd'}));
   const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name,
     role:'button',tabindex:0,'aria-label':name,'aria-pressed':'false'});
   paths.set(name,region);
@@ -86,8 +87,11 @@ regions.forEach(({name,path,label},i)=>{
 });
 // 읍·면·동별 인구밀도 (데이터 파일이 없으면 시·군 단위 색만 보인다)
 const dongDensity=element(densityLayer,'g',{});
-for(const {people,path} of (typeof dongPopulation==='object'?dongPopulation:[]))
-  element(dongDensity,'path',{d:path,fill:densityColor(people/pathArea(path)),class:'dong-density','fill-rule':'evenodd'});
+for(const {region,people,path} of (typeof dongPopulation==='object'?dongPopulation:[])){
+  const node=element(dongDensity,'path',{d:path,fill:densityColor(people/pathArea(path)),class:'dong-density','fill-rule':'evenodd'});
+  if(!dongDensityByRegion.has(region)) dongDensityByRegion.set(region,[]);
+  dongDensityByRegion.get(region).push(node);
+}
 // Neighbouring provinces in grey; pressing one opens the national map.
 const neighbourLayer=document.createElementNS(ns,'g');neighbourLayer.id='neighbour-layer';
 world.insertBefore(neighbourLayer,$('districts'));
@@ -166,6 +170,22 @@ for(const [region,parts] of Object.entries(guData)){
   }
   guGroups.set(region,group);guPaths.set(region,paths);
 }
+// 인구밀도 지도에서는 읍·면 조각이 떠오를 때 그 안의 색도 함께 떠오르도록, 효과 동안만 조각 모양으로 자른 색을 복사해 둔다.
+const guLift=document.createElementNS(ns,'g');guLift.id='gu-lift';guLayer.prepend(guLift);
+let liftCount=0;
+function liftDensity(region){
+  guLift.replaceChildren();
+  if(mapMode!=='density' || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const fills=[regionDensity.get(region),...(dongDensityByRegion.get(region)||[])].filter(Boolean);
+  for(const [,part] of guPaths.get(region)||[]){
+    const id='gu-lift-clip-'+(++liftCount);
+    element(element(guLift,'clipPath',{id}),'path',{d:part.getAttribute('d'),'clip-rule':'evenodd'});
+    const piece=element(guLift,'g',{class:'gu-lift-piece','clip-path':`url(#${id})`});
+    piece.style.setProperty('--gu-dx',part.style.getPropertyValue('--gu-dx'));
+    piece.style.setProperty('--gu-dy',part.style.getPropertyValue('--gu-dy'));
+    for(const fill of fills) piece.append(fill.cloneNode());
+  }
+}
 let selectedGu='';
 function syncGu(){
   const on=!favoritesOnly && guGroups.has(selected) && typeInputs.some(input=>input.checked);
@@ -176,8 +196,9 @@ function syncGu(){
     guLayer.classList.remove('intro');
     void guLayer.getBoundingClientRect();
     guLayer.classList.add('intro');
+    liftDensity(shown);
     clearTimeout(syncGu.timer);
-    syncGu.timer=setTimeout(()=>guLayer.classList.remove("intro"),2400);
+    syncGu.timer=setTimeout(()=>{guLayer.classList.remove("intro");guLift.replaceChildren()},2400);
   }
   guLayer.dataset.region=shown;
   guLayer.classList.toggle('visible',on);

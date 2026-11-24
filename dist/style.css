@@ -519,10 +519,18 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 #map.density-mode #gu-layer.picked .gu { fill:#fbfaf466; }
 #map.density-mode #gu-layer.picked .gu.active { fill:transparent; stroke:#1f4d3a; stroke-width:2.6px; }
 #map.density-mode #gu-layer.intro .gu { animation-name:gu-part-plain; }
-/* 색은 움직이지 않으므로 조각을 띄우지 않고 테두리만 잠깐 진하게 */
+/* 인구밀도 지도: 테두리와 그 안의 색(#gu-lift)이 함께 떠올랐다가 제자리로 */
 @keyframes gu-part-plain {
-  30%,68% { stroke:#1f4d3a; stroke-dasharray:none; stroke-width:2.6px; fill:#ffffff26; }
+  0%,100% { transform:none; }
+  30%,68% { transform:translate(var(--gu-dx),var(--gu-dy)); stroke:#1f4d3a; stroke-dasharray:none; stroke-width:2.2px; }
 }
+#gu-lift { pointer-events:none; }
+.gu-lift-piece { animation:gu-lift-piece 2.2s cubic-bezier(.35,0,.25,1) both; }
+@keyframes gu-lift-piece {
+  0%,100% { transform:none; filter:none; }
+  30%,68% { transform:translate(var(--gu-dx),var(--gu-dy)); filter:drop-shadow(0 2.5px 2px #1d3b2c8c); }
+}
+.gu-lift-piece .dong-density { stroke:#ffffffb0; stroke-width:.25; }
 /* 인구밀도/지형 지도를 바꿀 때 짧게 서서히 나타남 */
 #basemap > .basemap-in { animation:basemap-in .35s ease both; }
 @keyframes basemap-in { from { opacity:0; } to { opacity:1; } }
