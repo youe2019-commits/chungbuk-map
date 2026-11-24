@@ -1403,8 +1403,27 @@ function entryState(){
   return {...history.state,chungbukMap:{national:!$('nation-view').hidden,region:selected,center:[...center],zoom:z,types:typeInputs.filter(input=>input.checked).map(input=>input.value)}};
 }
 
+// 방문 기록은 늘 '처음 화면' 위에 '지금 지역' 한 칸만 둔다.
+// 그래서 지역을 고른 뒤 뒤로가기를 누르면 이전 지역이 아니라 처음 화면으로 간다.
+let pendingHome=null;
+function goHome(after){
+  if(selected && history.state?.chungbukMap?.region===selected){
+    pendingHome=after||true;
+    history.back();
+  }else{
+    choose('');
+    if(after)after();
+  }
+}
 function choose(name){
   if(name!==selected){
+    if(!name && selected && history.state?.chungbukMap?.region===selected){goHome();return}
+    if(selected && name){
+      // 지역 → 다른 지역: 기록을 쌓지 않고 지금 칸을 바꾼다.
+      renderSelection(name);
+      history.replaceState(entryState(),'');
+      return;
+    }
     // Capture the exact map extent just before leaving this region.
     history.replaceState(entryState(),'');
     renderSelection(name);
@@ -1436,6 +1455,14 @@ function restoreEntry(state){
 
 window.addEventListener('popstate',event=>{
   for(const dialog of document.querySelectorAll('dialog[open]'))dialog.close();
+  if(pendingHome){
+    // 홈 버튼 등으로 처음 화면에 돌아갈 때: 기록을 한 칸 되돌린 뒤 충북 전체로 맞춘다.
+    const after=pendingHome;pendingHome=null;
+    renderSelection('');
+    if(typeof after==='function')after();
+    history.replaceState(entryState(),'');
+    return;
+  }
   restoreEntry(event.state);
 });
 function zoom(factor,p=origin,q=p){
@@ -1544,10 +1571,11 @@ gestureArea.addEventListener('click',e=>{
   else if(target?.dataset.region===selected){
     // Clicking the selected district again shows the whole province, centred on that district.
     const [[l,t],[r,b]]=regions.find(region=>region.name===selected).bounds;
-    choose('');
-    center=[(l+r)/2,(t+b)/2];
-    draw();
-    history.replaceState(entryState(),'');
+    goHome(()=>{
+      center=[(l+r)/2,(t+b)/2];
+      draw();
+      history.replaceState(entryState(),'');
+    });
   }
   else if(target?.dataset.region)choose(target.dataset.region);
 });
