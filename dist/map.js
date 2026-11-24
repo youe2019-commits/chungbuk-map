@@ -74,7 +74,7 @@ regions.forEach(({name,path,label},i)=>{
   labelNode.textContent=name;labels.set(name,labelNode);
 });
 // 읍·면·동별 인구밀도 (데이터 파일이 없으면 시·군 단위 색만 보인다)
-const dongDensity=element(densityLayer,'g',{'clip-path':'url(#province)'});
+const dongDensity=element(densityLayer,'g',{});
 for(const {people,path} of (typeof dongPopulation==='object'?dongPopulation:[]))
   element(dongDensity,'path',{d:path,fill:densityColor(people/pathArea(path)),class:'dong-density','fill-rule':'evenodd'});
 // Neighbouring provinces in grey; pressing one opens the national map.
