@@ -1380,7 +1380,10 @@ ministryCard.addEventListener('cancel',event=>{
 });
 
 // 충북 / 전국 buttons next to the zoom bar switch between the two maps.
+// 전국 지도는 지금 쓰지 않는다(버튼은 숨김). 다시 쓰려면 true로 바꾸고 index.html의 view-switch hidden을 지운다.
+const nationalEnabled=false;
 $('nation-toggle').onclick=()=>{
+  if(!nationalEnabled)return;
   if(!$('nation-view').hidden) return;
   history.replaceState(entryState(),'');
   if(selected) renderSelection('');
@@ -1418,7 +1421,7 @@ function restoreEntry(state){
      Array.isArray(view.center) && view.center.length===2 && view.center.every(Number.isFinite) &&
      Number.isFinite(view.zoom) && view.zoom>=zMin-.001 && view.zoom<=8){
     renderSelection(view.region,view);
-    if(!view.region && view.national){
+    if(!view.region && view.national && nationalEnabled){
       setNational(true);
       if(['0','1','2','3'].includes(state.lessonStep)){
         openLesson(state.lessonStep);

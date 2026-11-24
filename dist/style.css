@@ -548,3 +548,6 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .density-legend:not(.compact) { left:auto; right:26px; bottom:123px; }
 @media(max-width:720px),(max-height:540px) { .density-legend:not(.compact) { right:14px; bottom:115px; } }
 @media(max-width:380px) { .density-legend:not(.compact) { right:8px; } }
+/* 전국 지도를 쓰지 않으므로 충북/전국 버튼을 숨기고, 학교 검색창을 확대·축소 상자 위에 같은 너비로 둔다 */
+.view-switch[hidden] { display:none; }
+.controls { flex-direction:column-reverse; align-items:stretch; }
