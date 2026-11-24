@@ -536,3 +536,7 @@ dialog, .nation-actions { word-break:keep-all; overflow-wrap:break-word; }
 .legend-compact em { font-style:normal; font-size:11px; color:#5b6a60; margin:0 5px; }
 .legend-compact em:first-child { margin-left:0; }
 @media(max-width:720px){ .density-legend { bottom:86px; } }
+/* 처음 화면의 범례는 오른쪽 회색 지역, 학교 검색창 위에 둔다(지역 선택 중 한 줄 범례는 왼쪽 아래 그대로) */
+.density-legend:not(.compact) { left:auto; right:26px; bottom:123px; }
+@media(max-width:720px),(max-height:540px) { .density-legend:not(.compact) { right:14px; bottom:115px; } }
+@media(max-width:380px) { .density-legend:not(.compact) { right:8px; } }
