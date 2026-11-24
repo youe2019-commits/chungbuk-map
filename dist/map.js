@@ -1211,9 +1211,8 @@ function renderSelection(name,view){
     for(const input of typeInputs){
       if(Array.isArray(view?.types)) input.checked=view.types.includes(input.value);
       else if(view?.schoolLevel) input.checked=view.schoolLevel==='all'||filterTypes(input.value).some(type=>type.level===view.schoolLevel);
-      // 청주는 국립학교만, 그 밖의 시·군은 공립중·공립고를 기본으로 보여 준다.
-      else input.checked=name==='청주시'?input.value==='nationalMiddle'
-        :name!=='' && (input.value==='publicMiddle' || input.value==='publicHigh');
+      // 청주는 필터 없이(도청·도의회·교육청 기관 카드), 그 밖의 시·군은 공립중·공립고를 기본으로 보여 준다.
+      else input.checked=name!=='청주시' && name!=='' && (input.value==='publicMiddle' || input.value==='publicHigh');
     }
   }
   selected=name;
