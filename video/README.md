@@ -57,3 +57,19 @@
 - 도입과 마무리는 `f04d28a`의 [컴퓨터 인구밀도 지도](public/screens/map-desktop-density.webp)와 [휴대폰 인구밀도 지도](public/screens/map-mobile-density.webp)를 쓴다. 예전 지형 지도 사진(`map-desktop.webp`, `map-mobile.webp`)은 지금 쓰지 않는다.
 - ④~⑦은 인구밀도 지도를 만들기 전 버전이라 지형·평면 지도 위에서 촬영되었다. 비교하는 변경 사항은 지금 앱에도 그대로 있다.
 - Remotion에서는 `staticFile('screens/density-dong.webp')`처럼 사진을 불러온다.
+
+## 1분 홍보 트레일러 (`ChungbukTrailer`)
+
+학생·학부모 홍보용. 누가 쓰는지와 무엇이 좋은지를 앞에 두고, 지금 앱 화면으로 기능을 보여 준 뒤 QR 코드로 끝낸다. 코드는 `src/Trailer.jsx`, 사진과 QR 코드는 `public/trailer/`(지금 앱을 컴퓨터 1280×800·1.5배, 휴대폰 390×844·2배로 촬영)에 있다.
+
+| 시간 | 내용 |
+|---|---|
+| 0:00–0:04 | “우리 동네엔 어떤 학교가 있을까?” (인구밀도 지도가 천천히 확대) |
+| 0:04–0:14 | 누가 쓰나요: 중학생·학부모·선생님 |
+| 0:14–0:24 | 무엇이 좋은가요: 설치 없이 주소 하나로 / 인구와 학교를 한 지도에 / 관심 학교를 찜해서 모아 보기 |
+| 0:24–0:50 | 기능 몽타주 6컷: 인구밀도 → 지역 선택(읍·면이 떠오름) → 단양 단성면 학교 → 하트 찜하기 → 찜한 학교만 보기 → 찜 목록 |
+| 0:50–1:00 | ‘충북 지도’, 앱 주소, QR 코드(앱 주소로 연결) |
+
+```sh
+npm run render -- src/index.jsx ChungbukTrailer out/chungbuk-trailer.mp4 --codec=h264
+```
