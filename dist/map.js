@@ -21,15 +21,32 @@ const waterData=typeof water==='object'?water:{area:'',rivers:''};
 element(waterLayer,'path',{class:'water-area',d:waterData.area,'fill-rule':'evenodd'});
 element(waterLayer,'path',{class:'water-line',d:waterData.rivers,'vector-effect':'non-scaling-stroke'});
 
+// 인구밀도 지도: 주민등록 인구(남+여) ÷ 경계 데이터로 계산한 면적(㎢)
+const densityLayer=document.createElementNS(ns,'g');
+const densitySteps=[[500,'#b30000','500 이상'],[200,'#e34a33','200~500'],[100,'#fc8d59','100~200'],[50,'#fdcc8a','50~100'],[0,'#fef0d9','50 미만']];
+function pathArea(d){
+  let total=0;
+  for(const ring of d.split('M').filter(Boolean)){
+    const pts=ring.replace(/Z/gi,'').split('L').map(p=>p.split(',').map(Number));
+    let s=0;for(let i=0;i<pts.length;i++){const [x1,y1]=pts[i],[x2,y2]=pts[(i+1)%pts.length];s+=x1*y2-x2*y1}
+    total+=s/2;
+  }
+  return Math.abs(total)/(km*km);
+}
+const legend=$('density-legend');
+legend.insertAdjacentHTML('beforeend',densitySteps.map(([,color,text])=>`<span><i style="background:${color}"></i>${text}</span>`).join(''));
+
 const modeControls = document.querySelectorAll('input[name="map-mode"]');
 const modeKey = 'chungbuk-atlas.map-mode';
+let mapMode='density';
 function showMode(mode) {
-  $('basemap').replaceChildren(mode === 'flat' ? land : terrain);
-  $('nation-map').src = mode === 'flat' ? 'nation-flat.webp' : 'nation-terrain.webp';
+  mapMode=mode;
+  $('basemap').replaceChildren(mode === 'density' ? densityLayer : terrain);
   for (const control of modeControls) control.checked = control.value === mode;
+  legend.hidden = mode !== 'density' || !!selected;
 }
-// 지형 지도만 사용한다(지형/평면 선택은 숨김).
-showMode('terrain');
+// 처음에는 인구밀도 지도를 보여 준다(지형 지도로 바꿀 수 있음).
+queueMicrotask(()=>showMode('density'));
 for (const control of modeControls) {
   control.addEventListener('change', () => {
     showMode(control.value);
@@ -41,6 +58,9 @@ const paths=new Map(), labels=new Map();
 regions.forEach(({name,path,label},i)=>{
   element($('province'),'path',{d:path,'clip-rule':'evenodd'});
   element(land,'path',{d:path,fill:colors[i],'fill-rule':'evenodd'});
+  const people=(regionStatistics[name]?.male||0)+(regionStatistics[name]?.female||0);
+  const density=people/pathArea(path);
+  element(densityLayer,'path',{d:path,fill:densitySteps.find(([min])=>density>=min)[1],'fill-rule':'evenodd'});
   const region=element($('districts'),'path',{d:path,class:'district','fill-rule':'evenodd','data-region':name,
     role:'button',tabindex:0,'aria-label':name,'aria-pressed':'false'});
   paths.set(name,region);
@@ -1118,6 +1138,7 @@ function draw(){
     label.style.fontSize=(labelSize/k)+'px';label.style.strokeWidth=(2.8/k)+'px';
     label.classList.toggle('active',selected===name);
   });
+  legend.hidden = mapMode !== 'density' || !!selected;
   const guSize=Math.min(17,12+2*Math.log2(z));
   for(const text of guLabels){text.style.fontSize=(guSize/k)+'px';text.style.strokeWidth=(2.6/k)+'px'}
   guLayer.classList.toggle('show-dong-names',guGroups.has(selected) && z>=1.4*fittedZoom(areaBounds(selected)));
