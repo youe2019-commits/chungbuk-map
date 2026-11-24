@@ -313,7 +313,7 @@ const CLIPS = [
     device: 'laptop',
     cam: [
       {t: 0, cx: 640, cy: 420, w: 1280},
-      {t: 4.3, cx: 500, cy: 560, w: 760},
+      {t: 4.3, cx: 620, cy: 520, w: 900},
     ],
   },
   {

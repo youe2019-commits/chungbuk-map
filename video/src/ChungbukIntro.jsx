@@ -750,7 +750,7 @@ const Select = () => {
   const cam = camAt(f, [
     {t: 0, cx: 640, cy: 400, w: 1280},
     {t: 2.5, cx: 640, cy: 400, w: 1280},
-    {t: 5.5, cx: 615, cy: 410, w: 680},
+    {t: 5.5, cx: 620, cy: 405, w: 900},
   ]);
   const lifted = lift >= 0.5;
   return (
@@ -802,7 +802,7 @@ const Danyang = () => {
   const cam = camAt(f, [
     {t: 0, cx: 640, cy: 400, w: 1280},
     {t: 2, cx: 640, cy: 400, w: 1280},
-    {t: 5, cx: 640, cy: 425, w: 640},
+    {t: 5, cx: 610, cy: 425, w: 840},
   ]);
   const pick = interpolate(f, [s(8), s(8.6), s(15), s(15.5)], [0, 1, 1, 0], {
     extrapolateLeft: 'clamp',
